@@ -1,0 +1,219 @@
+:root {
+  --paper-width: 210mm;
+  --paper-height: 297mm;
+  --ink: #111;
+  --accent: #97886a;
+  --maroon: #7b2430;
+}
+
+* { box-sizing: border-box; }
+
+html, body {
+  margin: 0;
+  padding: 0;
+  background: #f3f3f3;
+  color: var(--ink);
+  font-family: Georgia, "Times New Roman", serif;
+}
+
+body {
+  min-height: 100vh;
+  display: grid;
+  place-items: center;
+}
+
+.certificate-page {
+  position: relative;
+  width: var(--paper-width);
+  height: var(--paper-height);
+  background: #fff;
+  overflow: hidden;
+  box-shadow: 0 8px 32px rgba(0,0,0,.14);
+}
+
+/* 印刷時・PDF化時は余白を消す */
+@page {
+  size: A4 portrait;
+  margin: 0;
+}
+
+@media print {
+  html, body { background: #fff; }
+  .certificate-page { box-shadow: none; }
+  .toolbar { display: none !important; }
+}
+
+.border-image {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  z-index: 0;
+  pointer-events: none;
+}
+
+.certificate-content {
+  position: relative;
+  z-index: 1;
+  height: 100%;
+  padding: 23mm 31mm 22mm;
+  display: grid;
+  grid-template-rows: auto auto auto auto 1fr auto;
+  justify-items: center;
+  text-align: center;
+}
+
+.logo-skysef {
+  width: 95mm;
+  height: auto;
+  object-fit: contain;
+  margin-top: -1mm;
+  margin-bottom: 11mm;
+}
+
+.title {
+  margin: 0;
+  font-size: 34pt;
+  line-height: 1.05;
+  font-style: italic;
+  font-weight: 700;
+  letter-spacing: .02em;
+}
+
+.awarded {
+  margin: 16mm 0 0;
+  font-size: 22pt;
+  line-height: 1.2;
+  font-weight: 500;
+}
+
+.recipient {
+  margin-top: 7mm;
+  width: 100%;
+}
+
+.recipient-name {
+  font-size: 26pt;
+  font-weight: 700;
+  letter-spacing: .07em;
+  line-height: 1.15;
+  min-height: 13mm;
+}
+
+.recipient-school {
+  margin-top: 1mm;
+  font-size: 15pt;
+  line-height: 1.2;
+  min-height: 7mm;
+}
+
+.description {
+  margin: 12mm 0 0;
+  width: 136mm;
+  text-align: left;
+  font-size: 22pt;
+  line-height: 1.35;
+  letter-spacing: .025em;
+}
+
+.footer {
+  width: 100%;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  align-items: end;
+  column-gap: 14mm;
+  margin-bottom: 9mm;
+}
+
+.organizer-block {
+  display: grid;
+  justify-items: start;
+  text-align: left;
+  margin-left: 6mm;
+}
+
+.logo-school {
+  width: 32mm;
+  height: auto;
+  margin-bottom: 5mm;
+  object-fit: contain;
+}
+
+.organizer-name {
+  font-size: 15.5pt;
+  line-height: 1.18;
+  font-weight: 700;
+  white-space: normal;
+}
+
+.signature-block {
+  position: relative;
+  min-height: 45mm;
+  display: grid;
+  align-content: end;
+  justify-items: center;
+  text-align: center;
+  padding-right: 4mm;
+}
+
+.principal-name {
+  font-size: 19pt;
+  line-height: 1.15;
+  font-weight: 700;
+  letter-spacing: .02em;
+}
+
+.principal-title {
+  margin-top: 1mm;
+  font-size: 15pt;
+  line-height: 1.12;
+  font-weight: 700;
+}
+
+.seal {
+  position: absolute;
+  width: 23mm;
+  height: 24mm;
+  object-fit: contain;
+  right: 1mm;
+  bottom: 10mm;
+  opacity: .82;
+  mix-blend-mode: multiply;
+}
+
+.toolbar {
+  position: fixed;
+  top: 16px;
+  right: 16px;
+  z-index: 10;
+  font-family: system-ui, sans-serif;
+  font-size: 14px;
+  background: rgba(255,255,255,.96);
+  border: 1px solid #ddd;
+  border-radius: 10px;
+  padding: 12px;
+  display: grid;
+  gap: 8px;
+  box-shadow: 0 4px 20px rgba(0,0,0,.12);
+}
+
+.toolbar label { display: grid; gap: 3px; }
+.toolbar input {
+  width: 240px;
+  padding: 6px 8px;
+  border: 1px solid #bbb;
+  border-radius: 6px;
+}
+.toolbar button {
+  padding: 7px 10px;
+  border: 1px solid #333;
+  background: #fff;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+@media screen and (max-width: 900px) {
+  body { place-items: start center; padding: 72px 0 24px; }
+  .certificate-page { transform: scale(.72); transform-origin: top center; }
+}

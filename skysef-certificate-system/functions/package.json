@@ -1,0 +1,17 @@
+{
+  "name": "skysef-certificate-function",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "engines": { "node": ">=20" },
+  "scripts": {
+    "start": "functions-framework --target=generateCertificate --port=8080",
+    "deploy": "gcloud functions deploy generateCertificate --gen2 --runtime=nodejs22 --region=asia-northeast1 --source=. --entry-point=generateCertificate --trigger-http --allow-unauthenticated"
+  },
+  "dependencies": {
+    "@google-cloud/functions-framework": "^3.5.1",
+    "@sendgrid/mail": "^8.1.6",
+    "@sparticuz/chromium": "^131.0.1",
+    "puppeteer-core": "^23.11.1"
+  }
+}
