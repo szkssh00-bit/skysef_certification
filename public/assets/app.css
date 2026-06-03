@@ -260,3 +260,37 @@ input:focus, select:focus, textarea:focus {
   .certificate-view, .certificate-stage { margin: 0 !important; padding: 0 !important; max-width: none !important; display: block !important; }
   #certificateView { display: block !important; }
 }
+
+
+/* Robust certificate-only printing for PC and smartphones. */
+body.print-certificate-only .site-header,
+body.print-certificate-only .page-hero,
+body.print-certificate-only .notice-card,
+body.print-certificate-only .form-shell,
+body.print-certificate-only .site-footer,
+body.print-certificate-only .no-print {
+  display: none !important;
+}
+body.print-certificate-only #questionnaireView { display: none !important; }
+body.print-certificate-only #certificateView,
+body.print-certificate-only .certificate-stage {
+  display: block !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  max-width: none !important;
+}
+body.print-certificate-only .certificate-page {
+  transform: none !important;
+  margin: 0 !important;
+}
+
+@media print {
+  body.print-certificate-only #questionnaireView { display: none !important; }
+  body.print-certificate-only #certificateView,
+  body.print-certificate-only .certificate-stage {
+    display: block !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    max-width: none !important;
+  }
+}

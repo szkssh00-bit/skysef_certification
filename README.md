@@ -74,3 +74,8 @@ This package is a complete repository. It includes:
 - `scripts/` for PowerShell deployment
 
 The current public workflow publishes only `public/`.
+
+
+## PDF generation fix
+
+The certificate screen now uses automatic PDF generation with a timeout. If html2canvas / jsPDF does not finish on a device, the page automatically falls back to the browser print dialog. On smartphones, choose Share / Print / Save to Files to store the certificate as a PDF.

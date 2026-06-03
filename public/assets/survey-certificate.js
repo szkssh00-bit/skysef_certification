@@ -328,38 +328,59 @@ function sanitizeFileName(text) {
     .slice(0, 80);
 }
 
+function delay(ms) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+function withTimeout(promise, ms, message) {
+  let timer;
+  const timeout = new Promise((_, reject) => {
+    timer = setTimeout(() => reject(new Error(message || "The operation timed out.")), ms);
+  });
+  return Promise.race([promise, timeout]).finally(() => clearTimeout(timer));
+}
+
 async function waitForImages(root) {
   const images = Array.from(root.querySelectorAll("img"));
   await Promise.all(images.map((img) => {
     if (img.complete && img.naturalWidth > 0) return Promise.resolve();
     return new Promise((resolve) => {
-      img.onload = resolve;
-      img.onerror = resolve;
+      const done = () => resolve();
+      img.onload = done;
+      img.onerror = done;
+      setTimeout(done, 5000);
     });
   }));
-  if (document.fonts && document.fonts.ready) await document.fonts.ready;
+  if (document.fonts && document.fonts.ready) {
+    await withTimeout(document.fonts.ready, 5000, "Font loading timed out.").catch(() => {});
+  }
 }
 
 async function buildPdfBlob() {
   applyCertificateText();
   const page = $("certificatePage");
   if (!window.html2canvas || !window.jspdf) {
-    throw new Error("PDF libraries are not loaded.");
+    throw new Error("PDF libraries are not loaded. Use Save as PDF instead.");
   }
+
   document.body.classList.add("pdf-rendering");
   try {
     await waitForImages(page);
-    const canvas = await html2canvas(page, {
-      scale: Math.min(3, window.devicePixelRatio || 2),
+    await delay(100);
+    const scale = Math.min(2, Math.max(1.5, window.devicePixelRatio || 1.5));
+    const canvas = await withTimeout(html2canvas(page, {
+      scale,
       useCORS: true,
+      allowTaint: true,
       backgroundColor: "#ffffff",
       logging: false,
       scrollX: 0,
       scrollY: 0,
       windowWidth: page.scrollWidth,
       windowHeight: page.scrollHeight
-    });
-    const imageData = canvas.toDataURL("image/jpeg", 0.98);
+    }), 20000, "PDF image creation took too long.");
+
+    const imageData = canvas.toDataURL("image/jpeg", 0.95);
     const { jsPDF } = window.jspdf;
     const pdf = new jsPDF({ orientation: "portrait", unit: "mm", format: "a4", compress: true });
     pdf.addImage(imageData, "JPEG", 0, 0, 210, 297);
@@ -380,12 +401,27 @@ async function withPdfStatus(message, task) {
   status.textContent = message;
   try {
     return await task();
+  } catch (error) {
+    console.error(error);
+    status.textContent = "Automatic PDF generation did not finish. The browser print/save dialog will open instead. Choose 'Save as PDF' or 'Save to Files'.";
+    await delay(400);
+    printCertificate();
   } finally {
     downloadButton.disabled = false;
     openButton.disabled = false;
     downloadButton.textContent = oldDownload;
     openButton.textContent = oldOpen;
   }
+}
+
+function printCertificate() {
+  applyCertificateText();
+  $("pdfStatus").textContent = "The print dialog will open. Select 'Save as PDF' on PC, or use Share / Print / Save to Files on a smartphone.";
+  document.body.classList.add("print-certificate-only");
+  setTimeout(() => {
+    window.print();
+    setTimeout(() => document.body.classList.remove("print-certificate-only"), 800);
+  }, 150);
 }
 
 async function downloadCertificatePdf() {
@@ -404,24 +440,8 @@ async function downloadCertificatePdf() {
 }
 
 async function openCertificatePdf() {
-  await withPdfStatus("Preparing PDF for mobile save/share...", async () => {
-    const blob = await buildPdfBlob();
-    const url = URL.createObjectURL(blob);
-    const opened = window.open(url, "_blank", "noopener,noreferrer");
-    if (!opened) {
-      const a = document.createElement("a");
-      a.href = url;
-      a.target = "_blank";
-      a.rel = "noopener noreferrer";
-      a.textContent = "Open PDF";
-      a.className = "fallback-pdf-link";
-      $("pdfStatus").innerHTML = "Popup was blocked. ";
-      $("pdfStatus").appendChild(a);
-    } else {
-      $("pdfStatus").textContent = "The PDF has opened in a new tab. On a smartphone, use the browser share/save menu to save it as a PDF.";
-    }
-    setTimeout(() => URL.revokeObjectURL(url), 120000);
-  });
+  // This button is intentionally print-based because it is more reliable on iPhone / Android than blob downloads.
+  printCertificate();
 }
 
 function showCertificateView() {
