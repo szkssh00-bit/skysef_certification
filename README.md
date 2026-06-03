@@ -4,7 +4,7 @@ This repository provides a GitHub Pages front end and Google Apps Script backend
 
 ## Main features
 
-This v4 build fixes the mobile vertical layout, server-side date limits, certificate-period reflection, and spreadsheet column mapping.
+This v5 build fixes the mobile vertical layout, server-side date limits, certificate-period reflection, and spreadsheet column mapping.
 
 
 - Questionnaire is shown first.
@@ -20,7 +20,7 @@ This v4 build fixes the mobile vertical layout, server-side date limits, certifi
 The front end is already configured to post to:
 
 ```text
-https://script.google.com/macros/s/AKfycbyZHbQpHVPAIc9zf2Sq24wmJUHU61wD2Jir6-DvXu7nTfkP9dJ5H5ChJyzQSA9eLEdz/exec
+https://script.google.com/macros/s/AKfycbyktwUSn6GrAK-UBxM6IUzkJQN99Q6G8ALYLr6M_vuhBW0zen9oMV0jcD4sQRWM0eM/exec
 ```
 
 ## Files

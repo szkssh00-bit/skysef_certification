@@ -1,5 +1,5 @@
 /* SKYSEF questionnaire -> Apps Script -> private PDF. */
-const SURVEY_ENDPOINT = "https://script.google.com/macros/s/AKfycbyZHbQpHVPAIc9zf2Sq24wmJUHU61wD2Jir6-DvXu7nTfkP9dJ5H5ChJyzQSA9eLEdz/exec";
+const SURVEY_ENDPOINT = "https://script.google.com/macros/s/AKfycbyktwUSn6GrAK-UBxM6IUzkJQN99Q6G8ALYLr6M_vuhBW0zen9oMV0jcD4sQRWM0eM/exec";
 
 const SCHOOLS = [
   { school: "West Moreton Anglican College", country: "Australia" },
