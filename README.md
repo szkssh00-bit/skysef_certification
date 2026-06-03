@@ -1,82 +1,76 @@
-# SKYSEF Certificate System
+# SKYSEF Questionnaire and Certificate System
 
-SKYSEF 2026 の参加証明書を HTML + CSS で管理し、GitHub Pagesでプレビューし、Googleフォーム送信を契機にPDFを生成するためのテンプレートです。
+This repository publishes a SKYSEF questionnaire page and generates an individual certificate of participation after questionnaire submission.
 
-## 構成
+## Main functions
+
+- The first screen is the questionnaire form.
+- After submission, the page transitions to the certificate screen.
+- The participant's name and school name are inserted into the certificate.
+- The certificate can be downloaded as a PDF.
+- An additional **Open PDF** button is included for smartphone browsers, so participants can open the PDF and save/share it from the mobile browser menu.
+- The generated PDF is not uploaded to GitHub Pages and is not stored as a public file.
+- Questionnaire responses can optionally be sent to Google Apps Script and saved in a private spreadsheet.
+
+## Privacy design
+
+The certificate PDF is generated on the participant's device. It is not saved in this repository, not uploaded to GitHub Pages, and no public URL for the generated PDF is created. Therefore, another participant cannot access someone else's generated certificate from the public site.
+
+If response collection is needed, set a private endpoint in `public/assets/survey-certificate.js`:
+
+```js
+const SURVEY_ENDPOINT = "";
+```
+
+Example:
+
+```js
+const SURVEY_ENDPOINT = "https://script.google.com/macros/s/XXXXX/exec";
+```
+
+## GitHub Pages
+
+The public site is in:
 
 ```text
-public/                     GitHub Pagesで公開する証明書プレビュー
-public/assets/              CSS、ロゴ、賞状枠、印影画像
-functions/                  Cloud Run functions / Cloud Functions 用PDF生成API
-apps-script/FormWebhook.gs  Googleフォーム送信時のWebhook連携スクリプト
-.github/workflows/pages.yml GitHub Pages自動公開
+public/
 ```
 
-## できること
-
-1. `public/index.html` で証明書デザインを確認できます。
-2. URLパラメータで氏名と学校名を差し替えられます。
+The workflow file is:
 
 ```text
-https://<ユーザー名>.github.io/<リポジトリ名>/?name=Taro%20Yamada&school=Example%20High%20School
+.github/workflows/pages.yml
 ```
 
-3. `functions/` をGoogle Cloudへデプロイすると、JSONからPDFを生成できます。
-4. Apps ScriptからCloud Functionへ送信し、返却されたPDFをメール添付できます。
+After pushing to GitHub, set:
 
-## ローカル確認
-
-```bash
-cd functions
-npm install
-npm run start
+```text
+Settings → Pages → Source → GitHub Actions
 ```
 
-別ターミナルから次を実行します。
+## Google Apps Script response collection
 
-```bash
-curl -X POST http://localhost:8080 \
-  -H "Content-Type: application/json" \
-  -d '{"name":"Taro Yamada","school":"Example High School"}' \
-  --output certificate.pdf
-```
+1. Create a Google Spreadsheet.
+2. Open Extensions → Apps Script.
+3. Paste `apps-script/SurveyWebhook.gs`.
+4. Deploy as a Web App.
+5. Set access to `Anyone`.
+6. Copy the Web App URL.
+7. Paste it into `SURVEY_ENDPOINT` in `public/assets/survey-certificate.js`.
 
-## GitHub Pages公開
+## Local preview
 
-1. このフォルダをGitHubリポジトリへpushします。
-2. GitHubの `Settings > Pages` で `GitHub Actions` を選びます。
-3. `main` ブランチにpushすると、`.github/workflows/pages.yml` により `public/` が公開されます。
+Open `public/index.html` in a browser, or serve it with a local web server.
 
-## Cloud Functions / Cloud Run functions デプロイ
 
-```bash
-cd functions
-npm install
-gcloud functions deploy generateCertificate \
-  --gen2 \
-  --runtime=nodejs22 \
-  --region=asia-northeast1 \
-  --source=. \
-  --entry-point=generateCertificate \
-  --trigger-http \
-  --allow-unauthenticated \
-  --set-env-vars WEBHOOK_API_KEY="任意の長いランダム文字列"
-```
+## Complete ZIP notes
 
-SendGridでCloud Function側から直接メール送信する場合は、次も設定します。
+This package is a complete repository. It includes:
 
-```bash
---set-env-vars WEBHOOK_API_KEY="...",SENDGRID_API_KEY="...",MAIL_FROM="..."
-```
+- `public/` for GitHub Pages
+- `.github/workflows/pages.yml` for automatic deployment
+- `apps-script/SurveyWebhook.gs` for optional Google Spreadsheet collection
+- `functions/` for an optional server-side PDF generation approach
+- `scripts/` for PowerShell deployment
 
-Apps Script側でPDFを受け取り、MailAppで送信する場合は、SendGrid設定は不要です。
-
-## Googleフォーム連携
-
-1. Googleフォームの回答先スプレッドシートを開きます。
-2. `拡張機能 > Apps Script` を開きます。
-3. `apps-script/FormWebhook.gs` の内容を貼り付けます。
-4. スクリプトプロパティに `FUNCTION_URL` と `WEBHOOK_API_KEY` を設定します。
-5. インストール型トリガーで `onFormSubmit` を「フォーム送信時」に設定します。
-
-フォームの項目名が異なる場合は、`FIELD_MAP` を修正してください。
+The current public workflow publishes only `public/`.

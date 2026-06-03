@@ -2,57 +2,206 @@
 <html lang="en">
 <head>
   <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>SKYSEF Certificate Template</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>SKYSEF 2025 Questionnaire and Certificate</title>
+  <meta name="description" content="Questionnaire and private individual certificate download page for SKYSEF 2025." />
+  <link rel="stylesheet" href="assets/app.css" />
   <link rel="stylesheet" href="assets/certificate.css" />
 </head>
 <body>
-  <form class="toolbar" onsubmit="return false;" aria-label="Certificate preview controls">
-    <label>Name<input id="inputName" value="Name" /></label>
-    <label>School<input id="inputSchool" value="School" /></label>
-    <button type="button" onclick="window.print()">Print / Save as PDF</button>
-  </form>
+  <header class="site-header no-print">
+    <a class="brand" href="https://szkssh00-bit.github.io/SKYSEF/" aria-label="Back to SKYSEF main site">
+      <span class="brand-mark">SKYSEF</span>
+      <span class="brand-sub">Questionnaire & Certificate</span>
+    </a>
+    <nav class="site-nav" aria-label="Page navigation">
+      <a href="https://szkssh00-bit.github.io/SKYSEF/">Main Page</a>
+    </nav>
+  </header>
 
-  <main class="certificate-page" aria-label="Certificate of Participation">
-    <img class="border-image" src="assets/certificate-border.jpeg" alt="" />
-    <section class="certificate-content">
-      <img class="logo-skysef" src="assets/skysef-logo.jpeg" alt="SKYSEF" />
-
-      <h1 class="title">Certificate of</h1>
-
-      <p class="awarded">This Certificate is awarded to</p>
-
-      <div class="recipient">
-        <div class="recipient-name" id="name">Name</div>
-        <div class="recipient-school" id="school">School</div>
+  <main>
+    <section id="questionnaireView" class="view is-active" aria-labelledby="questionnaireTitle">
+      <div class="page-hero compact">
+        <p class="eyebrow">Shizuoka Kita Youth Science Engineering Forum 2025</p>
+        <h1 id="questionnaireTitle">Questionnaire for Participants</h1>
+        <p>
+          The SKYSEF team feels so appreciated that we could share research and friendship altogether.
+          Your opinion is important for the progression of SKYSEF. We truly appreciate your comments and suggestions.
+        </p>
       </div>
 
-      <p class="description">
-        for participating in the Shizuoka<br />
-        Kita Youth Science Engineering<br />
-        Forum 2026, held from August 2<br />
-        to 5, 2026, hosted and organized<br />
-        by Shizuoka Kita Junior and Senior<br />
-        High School
-      </p>
+      <section id="privacy-note" class="notice-card">
+        <h2>Private certificate generation</h2>
+        <p>
+          After you submit this questionnaire, this page moves to your individual certificate screen. The PDF is generated on your own device.
+          It is not saved on GitHub Pages, and no public PDF URL is created.
+        </p>
+      </section>
 
-      <footer class="footer">
-        <div class="organizer-block">
-          <img class="logo-school" src="assets/shizuoka-logo.png" alt="Shizuoka Kita logo" />
-          <div class="organizer-name">
-            Shizuoka Kita Junior and Senior High<br />
-            School
+      <section class="form-shell">
+        <form id="surveyForm" class="survey-form">
+          <fieldset class="form-card">
+            <legend>Participant information</legend>
+            <div class="form-grid two">
+              <label>
+                Name <span class="required-mark">*</span>
+                <input name="name" id="inputName" type="text" autocomplete="name" required placeholder="Full name" />
+              </label>
+              <label>
+                School Name <span class="required-mark">*</span>
+                <select name="school" id="inputSchool" required>
+                  <option value="">Select your school</option>
+                </select>
+              </label>
+              <label>
+                Country <span class="required-mark">*</span>
+                <select name="country" id="inputCountry" required>
+                  <option value="">Select country / region</option>
+                </select>
+              </label>
+              <label>
+                Position <span class="required-mark">*</span>
+                <select name="position" id="position" required>
+                  <option value="">Select</option>
+                  <option value="Student">Student</option>
+                  <option value="Teacher">Teacher</option>
+                  <option value="Other">Other</option>
+                </select>
+              </label>
+              <label id="otherPositionLabel" hidden>
+                Other position
+                <input name="positionOther" id="positionOther" type="text" placeholder="Please specify" />
+              </label>
+              <label>
+                E-mail address
+                <input name="email" type="email" autocomplete="email" placeholder="Optional" />
+              </label>
+            </div>
+          </fieldset>
+
+          <fieldset class="form-card">
+            <legend>SKYSEF contents</legend>
+            <p class="scale-note">Please select the number which suits your feeling best. 5 = Satisfactory, 3 = Fair, 1 = Unsatisfactory.</p>
+            <div id="programQuestions" class="question-list"></div>
+          </fieldset>
+
+          <fieldset class="form-card">
+            <legend>Items about SKYSEF 2025</legend>
+            <div class="split-grid">
+              <div>
+                <h3>Items that you liked about SKYSEF 2025</h3>
+                <label>1.<input name="liked_1" type="text" /></label>
+                <label>2.<input name="liked_2" type="text" /></label>
+                <label>3.<input name="liked_3" type="text" /></label>
+              </div>
+              <div>
+                <h3>Items that you think SKYSEF 2025 should be improved</h3>
+                <label>1.<input name="improved_1" type="text" /></label>
+                <label>2.<input name="improved_2" type="text" /></label>
+                <label>3.<input name="improved_3" type="text" /></label>
+              </div>
+            </div>
+          </fieldset>
+
+          <fieldset class="form-card">
+            <legend>Learning, communication, and future participation</legend>
+            <p class="scale-note">Please select the number which suits your feeling best. 5 = Agree, 3 = So-so, 1 = Disagree.</p>
+            <div id="learningQuestions" class="question-list"></div>
+          </fieldset>
+
+          <fieldset class="form-card">
+            <legend>Preferred period</legend>
+            <div id="periodQuestion" class="period-options"></div>
+          </fieldset>
+
+          <fieldset class="form-card teacher-only" id="teacherOnlyBlock" hidden>
+            <legend>For teachers</legend>
+            <div id="teacherQuestions" class="question-list"></div>
+          </fieldset>
+
+          <fieldset class="form-card">
+            <legend>Comments and suggestions</legend>
+            <label class="block-label">
+              Please give your comments and suggestions to SKYSEF.
+              <textarea name="comments" rows="6" placeholder="Please write your comments and suggestions."></textarea>
+            </label>
+          </fieldset>
+
+          <div class="submit-panel">
+            <button class="button primary" type="submit">Submit questionnaire</button>
+            <p id="submitStatus" class="submit-status" role="status" aria-live="polite"></p>
           </div>
+        </form>
+      </section>
+    </section>
+
+    <section id="certificateView" class="view certificate-view" aria-labelledby="certificateTitle" hidden>
+      <div class="page-hero compact no-print">
+        <p class="eyebrow">Certificate of Participation</p>
+        <h1 id="certificateTitle">Your certificate is ready.</h1>
+        <p>
+          The name and school entered in the questionnaire have been inserted into the certificate.
+          Use Download PDF or Open PDF to save it on a smartphone.
+        </p>
+        <div class="certificate-actions">
+          <button id="downloadPdfButton" class="button primary" type="button">Download PDF</button>
+          <button id="openPdfButton" class="button secondary" type="button">Open PDF</button>
+          <button id="backToFormButton" class="button ghost-dark" type="button">Back to questionnaire</button>
         </div>
-        <div class="signature-block">
-          <div class="principal-name">Hisao Ohashi</div>
-          <div class="principal-title">Principal</div>
-          <img class="seal" src="assets/principal-seal.png" alt="Principal seal" />
-        </div>
-      </footer>
+        <p id="pdfStatus" class="small-note" role="status" aria-live="polite"></p>
+      </div>
+
+      <div class="certificate-stage">
+        <main id="certificatePage" class="certificate-page" aria-label="Certificate of Participation">
+          <img class="border-image" src="assets/certificate-border.jpeg" alt="" />
+          <section class="certificate-content">
+            <img class="logo-skysef" src="assets/skysef-logo.jpeg" alt="SKYSEF" />
+
+            <h1 class="title">Certificate of</h1>
+
+            <p class="awarded">This Certificate is awarded to</p>
+
+            <div class="recipient">
+              <div class="recipient-name" id="name">Name</div>
+              <div class="recipient-school" id="school">School</div>
+            </div>
+
+            <p class="description" id="certificateDescription">
+              for participating in the Shizuoka<br />
+              Kita Youth Science Engineering<br />
+              Forum 2025, held from July 30<br />
+              to August 2, 2025, hosted and<br />
+              organized by Shizuoka Kita Junior<br />
+              and Senior High School
+            </p>
+
+            <footer class="footer">
+              <div class="organizer-block">
+                <img class="logo-school" src="assets/shizuoka-logo.png" alt="Shizuoka Kita logo" />
+                <div class="organizer-name">
+                  Shizuoka Kita Junior and Senior High<br />
+                  School
+                </div>
+              </div>
+              <div class="signature-block">
+                <div class="principal-name">Hisao Ohashi</div>
+                <div class="principal-title">Principal</div>
+                <img class="seal" src="assets/principal-seal.png" alt="Principal seal" />
+              </div>
+            </footer>
+          </section>
+        </main>
+      </div>
     </section>
   </main>
 
-  <script src="assets/certificate.js"></script>
+  <footer class="site-footer no-print">
+    Shizuoka Kita Junior and Senior High School<br />
+    © 2025 SKYSEF. All Rights Reserved.
+  </footer>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js" integrity="sha512-BNa5rkJXqsdk8TKmApbTX8V8ecULYSC5uG7UE5gzkT/iy6OZ6vuolym2bHKEi+ssrKjJwdlBvaBFea6gFh/DaQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js" integrity="sha512-qZvrmS2ekKPF2mSznTQsxqPgnpkI4DNTlrdUmTzrDgektczlKNRdcwffGByyIGoXyo5ay1mF0MOTpvNr1C5qoA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+  <script src="assets/survey-certificate.js"></script>
 </body>
 </html>
