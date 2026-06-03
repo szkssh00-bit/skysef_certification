@@ -30,10 +30,13 @@ jobs:
       - name: Setup Pages
         uses: actions/configure-pages@v5
 
+      - name: Add nojekyll
+        run: touch ./skysef-certificate-system/public/.nojekyll
+
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: ./public
+          path: ./skysef-certificate-system/public
 
       - name: Deploy to GitHub Pages
         id: deployment
