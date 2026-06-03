@@ -285,3 +285,95 @@ input:focus, select:focus, textarea:focus {
   body { background: #fff; }
   main { width: auto; margin: 0; }
 }
+
+/* v4 mobile-first refinements */
+@media (max-width: 780px) {
+  body { font-size: 16px; }
+  .site-header {
+    display: grid;
+    gap: 12px;
+  }
+  .site-nav {
+    width: 100%;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+  }
+  .site-nav a {
+    min-height: 44px;
+    display: grid;
+    place-items: center;
+    border: 1px solid #d7e3ef;
+    border-radius: 14px;
+    background: #fff;
+  }
+  main { width: min(100% - 16px, 720px); }
+  .survey-form { gap: 22px; }
+  .form-card {
+    padding: 22px 16px;
+    border-radius: 22px;
+  }
+  .form-card legend {
+    display: block;
+    font-size: 20px;
+    line-height: 1.25;
+    margin-bottom: 18px;
+    padding-right: 0;
+  }
+  label { gap: 9px; }
+  input, select, textarea {
+    min-height: 60px;
+    padding: 15px 15px;
+  }
+  textarea { min-height: 132px; }
+  .question-list { gap: 18px; }
+  .question-item {
+    padding: 18px 14px;
+    border-radius: 20px;
+  }
+  .question-title { font-size: 16px; margin-bottom: 14px; }
+  .rating-row {
+    grid-template-columns: 1fr;
+    gap: 9px;
+  }
+  .rating-row label {
+    min-height: 58px;
+    justify-content: center;
+    font-size: 18px;
+  }
+  .rating-row label::before {
+    content: "Score";
+    margin-right: 6px;
+    font-size: 12px;
+    letter-spacing: .08em;
+    opacity: .72;
+  }
+  .timeline-tabs { display: grid; grid-template-columns: repeat(2, 1fr); }
+  .timeline-tab { width: 100%; min-height: 50px; }
+  .timeline-panel { overflow-x: visible; }
+  .timeline-panel table,
+  .timeline-panel thead,
+  .timeline-panel tbody,
+  .timeline-panel tr,
+  .timeline-panel th,
+  .timeline-panel td { display: block; width: 100%; min-width: 0; }
+  .timeline-panel thead { display: none; }
+  .timeline-panel tr {
+    padding: 14px;
+    border-bottom: 1px solid #e4edf5;
+  }
+  .timeline-panel tr:last-child { border-bottom: 0; }
+  .timeline-panel td {
+    border-bottom: 0;
+    padding: 3px 0;
+    white-space: normal !important;
+  }
+  .timeline-panel td:first-child {
+    color: var(--primary2);
+    font-size: 14px;
+  }
+  .period-option { min-height: 60px; }
+  .submit-panel {
+    border-radius: 20px;
+    padding: 14px;
+  }
+}

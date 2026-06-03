@@ -11,8 +11,7 @@
   position: relative;
   width: var(--paper-width);
   height: var(--paper-height);
-  background:
-    radial-gradient(circle at 50% 18%, rgba(255,255,255,.98), rgba(255,255,255,.94) 42%, rgba(245,249,252,.98) 100%);
+  background: radial-gradient(circle at 50% 18%, #ffffff 0%, #f7fafc 100%);
   overflow: hidden;
   color: var(--cert-ink);
   font-family: Inter, "Noto Sans", "Segoe UI", system-ui, sans-serif;
@@ -59,6 +58,7 @@
 }
 .logo-skysef {
   width: 90mm;
+  max-height: 35mm;
   height: auto;
   object-fit: contain;
   margin-bottom: 9mm;
@@ -89,19 +89,20 @@
   min-height: 13mm;
   display: grid;
   place-items: center;
-  font-size: clamp(24pt, 4.2vw, 30pt);
+  font-size: clamp(22pt, 3.8vw, 29pt);
   line-height: 1.12;
   font-weight: 900;
   color: #091d35;
   letter-spacing: .01em;
   overflow-wrap: anywhere;
+  word-break: normal;
 }
 .recipient-school {
   min-height: 8mm;
   display: grid;
   place-items: center;
   margin-top: 1.5mm;
-  font-size: 14.5pt;
+  font-size: 14.2pt;
   line-height: 1.25;
   color: #304b6e;
   font-weight: 700;
@@ -111,7 +112,7 @@
   margin: 11mm auto 0;
   width: 148mm;
   font-family: "Libre Baskerville", Georgia, Cambria, serif;
-  font-size: 15.6pt;
+  font-size: 15.4pt;
   line-height: 1.55;
   color: #18314f;
 }
@@ -131,20 +132,35 @@
 .principal-title { margin-top: 1mm; font-size: 12.5pt; line-height: 1.1; font-weight: 800; color: #304b6e; }
 .seal { position: absolute; width: 23mm; height: 24mm; right: 5mm; bottom: 8mm; object-fit: contain; opacity: .84; }
 @media (max-width: 780px) {
-  .certificate-stage { justify-content: start; }
-  .certificate-page {
-    transform: scale(.48);
-    transform-origin: top left;
-    margin-bottom: calc(-297mm * .52 + 20px);
+  .certificate-stage {
+    justify-content: center;
+    overflow-x: hidden;
+    padding: 16px 0 36px;
   }
-}
-@media (max-width: 420px) {
   .certificate-page {
-    transform: scale(.43);
-    margin-bottom: calc(-297mm * .57 + 20px);
+    width: min(100%, 430px);
+    height: auto;
+    aspect-ratio: 210 / 297;
+    transform: none;
+    margin-bottom: 0;
   }
+  .certificate-content { padding: 12% 11% 10%; }
+  .logo-skysef { width: 56%; max-height: none; margin-bottom: 5%; }
+  .title { font-size: clamp(24px, 7.8vw, 36px); }
+  .title span { font-size: clamp(27px, 8.6vw, 40px); }
+  .awarded { margin-top: 9%; font-size: clamp(14px, 4.2vw, 18px); }
+  .recipient { width: 82%; margin-top: 5%; padding-bottom: 4%; }
+  .recipient-name { min-height: 34px; font-size: clamp(20px, 6.6vw, 29px); }
+  .recipient-school { min-height: 24px; font-size: clamp(12px, 3.8vw, 16px); }
+  .description { width: 82%; margin-top: 7%; font-size: clamp(12px, 3.45vw, 15px); line-height: 1.5; }
+  .certificate-footer { width: 82%; gap: 5%; }
+  .logo-school { width: 38%; }
+  .organizer-name, .principal-title { font-size: clamp(9px, 2.9vw, 12px); }
+  .principal-name { font-size: clamp(13px, 4vw, 17px); }
+  .signature-block { min-height: 56px; padding-bottom: 14px; }
+  .seal { width: 28px; height: 30px; right: 4px; bottom: 12px; }
 }
 @media print {
   @page { size: A4 portrait; margin: 0; }
-  .certificate-page { box-shadow: none; }
+  .certificate-page { box-shadow: none; width: 210mm; height: 297mm; aspect-ratio: auto; }
 }

@@ -65,11 +65,12 @@ const PROGRAM_QUESTIONS = [
   "Opening Ceremony (Aug. 2)",
   "Keynote Address (Aug. 2)",
   "Welcome Reception / Cultural Performance I (Aug. 2)",
-  "Oral Presentation (Aug. 3)",
+  "Cultural Performance II (Aug. 5)",
   "Poster Session (Aug. 3)",
+  "Oral Presentation (Aug. 3)",
   "International Joint Project (Aug. 4 and Aug. 5)",
   "For teachers: Guided Tour (Aug. 4)",
-  "Cultural Performance II (Aug. 5)",
+  "For teachers: Teachers’ Session (Aug. 4)",
   "Commendation Ceremony (Aug. 5)",
   "Closing Ceremony (Aug. 5)",
   "Accommodation / Home Stay",
@@ -112,6 +113,23 @@ function setStatus(message, type = "") {
 }
 function selectedDateLabel(value) { return (EVENT_DATES.find((d) => d.value === value) || EVENT_DATES[0]).label; }
 function selectedDateShort(value) { return (EVENT_DATES.find((d) => d.value === value) || EVENT_DATES[0]).short; }
+function todayIsoLocal() {
+  const now = new Date();
+  const y = now.getFullYear();
+  const m = String(now.getMonth() + 1).padStart(2, "0");
+  const d = String(now.getDate()).padStart(2, "0");
+  return `${y}-${m}-${d}`;
+}
+function getSelectableEventDates() {
+  const eventStart = EVENT_DATES[0].value;
+  const eventEnd = EVENT_DATES[EVENT_DATES.length - 1].value;
+  const today = todayIsoLocal();
+  let upper = eventEnd;
+  if (today >= eventStart && today <= eventEnd) upper = today;
+  if (today > eventEnd) upper = eventEnd;
+  // Before the event, keep all dates selectable so that administrators can test the form.
+  return EVENT_DATES.filter((d) => d.value <= upper);
+}
 function getParticipationPeriodText() {
   const start = $("participationStart").value;
   const end = $("participationEnd").value;
@@ -171,17 +189,19 @@ function renderSelectOptions() {
     option.textContent = country;
     countrySelect.appendChild(option);
   });
+  const selectableDates = getSelectableEventDates();
   ["participationStart", "participationEnd"].forEach((id) => {
     const select = $(id);
-    EVENT_DATES.forEach((d) => {
+    select.innerHTML = "";
+    selectableDates.forEach((d) => {
       const option = document.createElement("option");
       option.value = d.value;
       option.textContent = d.label;
       select.appendChild(option);
     });
   });
-  $("participationStart").value = "2026-08-02";
-  $("participationEnd").value = "2026-08-05";
+  $("participationStart").value = selectableDates[0].value;
+  $("participationEnd").value = selectableDates[selectableDates.length - 1].value;
 }
 function renderTimeline(dateValue = "2026-08-02") {
   const panel = $("timelinePanel");
