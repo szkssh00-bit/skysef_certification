@@ -1,30 +1,41 @@
-# Replace the local skysef_certification repository with this complete package and push to GitHub.
-# 1. Extract this ZIP to Downloads.
-# 2. Run this script from PowerShell.
-
-$Downloads = "C:\Users\SSH2026\Downloads"
-$RepoPath = Join-Path $Downloads "skysef-certificate-system"
-$SourcePath = Split-Path -Parent $MyInvocation.MyCommand.Path
-$PackageRoot = Split-Path -Parent $SourcePath
+$ZipPath = "C:\Users\SSH2026\Downloads\skysef_certification_complete_v2.zip"
+$RepoPath = "C:\Users\SSH2026\Downloads\skysef_certification"
+$TempPath = "C:\Users\SSH2026\Downloads\skysef_certification_complete_v2_temp"
 $RepoUrl = "https://github.com/szkssh00-bit/skysef_certification.git"
 
-if (!(Test-Path $RepoPath)) {
-  Set-Location $Downloads
-  git clone $RepoUrl skysef-certificate-system
+if (!(Test-Path $ZipPath)) {
+    Write-Host "ZIPファイルが見つかりません: $ZipPath" -ForegroundColor Red
+    exit
 }
-
+if (Test-Path $TempPath) {
+    Remove-Item $TempPath -Recurse -Force
+}
+Expand-Archive -Path $ZipPath -DestinationPath $TempPath -Force
+if (!(Test-Path $RepoPath)) {
+    Set-Location "C:\Users\SSH2026\Downloads"
+    git clone $RepoUrl "skysef_certification"
+}
+$SourceRoot = Get-ChildItem -Path $TempPath -Directory | Select-Object -First 1
+if ($null -eq $SourceRoot) {
+    Write-Host "ZIP内に実体フォルダが見つかりません。" -ForegroundColor Red
+    exit
+}
 Set-Location $RepoPath
-
-# Keep .git, replace actual project files.
-Get-ChildItem -Force | Where-Object { $_.Name -ne ".git" } | Remove-Item -Recurse -Force
-Copy-Item -Path (Join-Path $PackageRoot "*") -Destination $RepoPath -Recurse -Force
-
-# Ensure workflow exists.
+Remove-Item ".\public" -Recurse -Force -ErrorAction SilentlyContinue
+Remove-Item ".\apps-script" -Recurse -Force -ErrorAction SilentlyContinue
+Remove-Item ".\docs" -Recurse -Force -ErrorAction SilentlyContinue
+Remove-Item ".\scripts" -Recurse -Force -ErrorAction SilentlyContinue
+Remove-Item ".\README.md" -Force -ErrorAction SilentlyContinue
+Remove-Item ".\POWERSHELL_UPDATE.md" -Force -ErrorAction SilentlyContinue
+Copy-Item -Path "$($SourceRoot.FullName)\public" -Destination ".\public" -Recurse -Force
+Copy-Item -Path "$($SourceRoot.FullName)\apps-script" -Destination ".\apps-script" -Recurse -Force
+Copy-Item -Path "$($SourceRoot.FullName)\docs" -Destination ".\docs" -Recurse -Force
+Copy-Item -Path "$($SourceRoot.FullName)\scripts" -Destination ".\scripts" -Recurse -Force
+Copy-Item -Path "$($SourceRoot.FullName)\README.md" -Destination ".\README.md" -Force
+Copy-Item -Path "$($SourceRoot.FullName)\POWERSHELL_UPDATE.md" -Destination ".\POWERSHELL_UPDATE.md" -Force
 New-Item -ItemType Directory -Force -Path ".github\workflows" | Out-Null
-
+Copy-Item -Path "$($SourceRoot.FullName)\.github\workflows\pages.yml" -Destination ".\.github\workflows\pages.yml" -Force
 git add .
-git commit -m "Update complete SKYSEF questionnaire and certificate system"
+git commit -m "Update Apps Script PDF certificate system"
 git push
-
-Write-Host "Done. Check GitHub Actions." -ForegroundColor Green
-Write-Host "https://szkssh00-bit.github.io/skysef_certification/" -ForegroundColor Green
+Write-Host "完了しました。GitHub Actionsを確認してください。" -ForegroundColor Green

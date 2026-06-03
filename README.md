@@ -1,81 +1,46 @@
-# SKYSEF Questionnaire and Certificate System
+# SKYSEF Certification System
 
-This repository publishes a SKYSEF questionnaire page and generates an individual certificate of participation after questionnaire submission.
+This repository contains a GitHub Pages front end and a Google Apps Script backend for SKYSEF questionnaires and private certificate PDF generation.
 
-## Main functions
+## Main flow
 
-- The first screen is the questionnaire form.
-- After submission, the page transitions to the certificate screen.
-- The participant's name and school name are inserted into the certificate.
-- The certificate can be downloaded as a PDF.
-- An additional **Open PDF** button is included for smartphone browsers, so participants can open the PDF and save/share it from the mobile browser menu.
-- The generated PDF is not uploaded to GitHub Pages and is not stored as a public file.
-- Questionnaire responses can optionally be sent to Google Apps Script and saved in a private spreadsheet.
+1. Participants first answer the questionnaire.
+2. The answer is sent to Google Apps Script.
+3. Apps Script writes all answers to the specified Google Spreadsheet.
+4. Apps Script generates an individual certificate PDF.
+5. The PDF is saved to the specified private Google Drive folder.
+6. The PDF is returned to the participant and downloaded on their device.
+7. The page then transitions to the certificate screen.
 
-## Privacy design
+## Important files
 
-The certificate PDF is generated on the participant's device. It is not saved in this repository, not uploaded to GitHub Pages, and no public URL for the generated PDF is created. Therefore, another participant cannot access someone else's generated certificate from the public site.
+- `public/index.html` — Questionnaire and certificate transition page.
+- `public/assets/app.css` — SKYSEF-style responsive UI.
+- `public/assets/certificate.css` — certificate preview style.
+- `public/assets/survey-certificate.js` — client-side form handling and PDF download.
+- `apps-script/Code.gs` — Google Apps Script backend.
+- `.github/workflows/pages.yml` — GitHub Pages deployment workflow.
 
-If response collection is needed, set a private endpoint in `public/assets/survey-certificate.js`:
+## Required Apps Script deployment
 
-```js
-const SURVEY_ENDPOINT = "";
-```
+Deploy `apps-script/Code.gs` as a Web App.
 
-Example:
+Deployment settings:
+
+- Execute as: Me
+- Who has access: Anyone
+
+Then paste the Web App URL into this line in `public/assets/survey-certificate.js`:
 
 ```js
 const SURVEY_ENDPOINT = "https://script.google.com/macros/s/XXXXX/exec";
 ```
 
-## GitHub Pages
+## Configured destinations
 
-The public site is in:
+The Apps Script is already configured to use:
 
-```text
-public/
-```
+- Spreadsheet ID: `1xMvjC6CKuLVrc9AkisQMHkBmxmOsIPkn9Yu0IGAUZlY`
+- Drive folder ID: `1-n452WCDY7syLZgEOKTvsjp3JsWthOZi`
 
-The workflow file is:
-
-```text
-.github/workflows/pages.yml
-```
-
-After pushing to GitHub, set:
-
-```text
-Settings → Pages → Source → GitHub Actions
-```
-
-## Google Apps Script response collection
-
-1. Create a Google Spreadsheet.
-2. Open Extensions → Apps Script.
-3. Paste `apps-script/SurveyWebhook.gs`.
-4. Deploy as a Web App.
-5. Set access to `Anyone`.
-6. Copy the Web App URL.
-7. Paste it into `SURVEY_ENDPOINT` in `public/assets/survey-certificate.js`.
-
-## Local preview
-
-Open `public/index.html` in a browser, or serve it with a local web server.
-
-
-## Complete ZIP notes
-
-This package is a complete repository. It includes:
-
-- `public/` for GitHub Pages
-- `.github/workflows/pages.yml` for automatic deployment
-- `apps-script/SurveyWebhook.gs` for optional Google Spreadsheet collection
-- `functions/` for an optional server-side PDF generation approach
-- `scripts/` for PowerShell deployment
-
-The current public workflow publishes only `public/`.
-
-
-## PDF generation fix
-
-The certificate screen now uses automatic PDF generation with a timeout. If html2canvas / jsPDF does not finish on a device, the page automatically falls back to the browser print dialog. On smartphones, choose Share / Print / Save to Files to store the certificate as a PDF.
+The Google account used to deploy Apps Script must have permission to edit the Spreadsheet and add files to the Drive folder.

@@ -4,7 +4,10 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
   <title>SKYSEF 2025 Questionnaire and Certificate</title>
-  <meta name="description" content="Questionnaire and private individual certificate download page for SKYSEF 2025." />
+  <meta name="description" content="SKYSEF questionnaire and private certificate PDF generation." />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Libre+Baskerville:wght@400;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="assets/app.css" />
   <link rel="stylesheet" href="assets/certificate.css" />
 </head>
@@ -21,7 +24,7 @@
 
   <main>
     <section id="questionnaireView" class="view is-active" aria-labelledby="questionnaireTitle">
-      <div class="page-hero compact">
+      <div class="page-hero">
         <p class="eyebrow">Shizuoka Kita Youth Science Engineering Forum 2025</p>
         <h1 id="questionnaireTitle">Questionnaire for Participants</h1>
         <p>
@@ -30,17 +33,16 @@
         </p>
       </div>
 
-      <section id="privacy-note" class="notice-card">
-        <h2>Private certificate generation</h2>
+      <section class="notice-card" aria-label="Certificate information">
+        <h2>Certificate PDF after submission</h2>
         <p>
-          After you submit this questionnaire, this page moves to your individual certificate screen. The PDF is generated on your own device.
-          It is not saved on GitHub Pages, and no public PDF URL is created.
+          After your response is safely recorded, your certificate PDF is generated and downloaded for you. The PDF is saved only in the SKYSEF private Drive folder and is not published on GitHub Pages.
         </p>
       </section>
 
       <section class="form-shell">
-        <form id="surveyForm" class="survey-form">
-          <fieldset class="form-card">
+        <form id="surveyForm" class="survey-form" novalidate>
+          <fieldset class="form-card participant-card">
             <legend>Participant information</legend>
             <div class="form-grid two">
               <label>
@@ -81,7 +83,7 @@
 
           <fieldset class="form-card">
             <legend>SKYSEF contents</legend>
-            <p class="scale-note">Please select the number which suits your feeling best. 5 = Satisfactory, 3 = Fair, 1 = Unsatisfactory.</p>
+            <p class="scale-note"><strong>5</strong> = Satisfactory, <strong>3</strong> = Fair, <strong>1</strong> = Unsatisfactory.</p>
             <div id="programQuestions" class="question-list"></div>
           </fieldset>
 
@@ -105,7 +107,7 @@
 
           <fieldset class="form-card">
             <legend>Learning, communication, and future participation</legend>
-            <p class="scale-note">Please select the number which suits your feeling best. 5 = Agree, 3 = So-so, 1 = Disagree.</p>
+            <p class="scale-note"><strong>5</strong> = Agree, <strong>3</strong> = So-so, <strong>1</strong> = Disagree.</p>
             <div id="learningQuestions" class="question-list"></div>
           </fieldset>
 
@@ -128,7 +130,7 @@
           </fieldset>
 
           <div class="submit-panel">
-            <button class="button primary" type="submit">Submit questionnaire</button>
+            <button id="submitButton" class="button primary" type="submit">Submit and create PDF</button>
             <p id="submitStatus" class="submit-status" role="status" aria-live="polite"></p>
           </div>
         </form>
@@ -136,16 +138,15 @@
     </section>
 
     <section id="certificateView" class="view certificate-view" aria-labelledby="certificateTitle" hidden>
-      <div class="page-hero compact no-print">
+      <div class="page-hero result-hero no-print">
         <p class="eyebrow">Certificate of Participation</p>
-        <h1 id="certificateTitle">Your certificate is ready.</h1>
+        <h1 id="certificateTitle">Your certificate has been created.</h1>
         <p>
-          The name and school entered in the questionnaire have been inserted into the certificate.
-          Use Download PDF. If automatic generation does not finish, the browser print dialog will open; choose Save as PDF. On a smartphone, use Share / Print / Save to Files.
+          Your questionnaire response has been recorded, and the certificate PDF has been generated. The file is also saved in the private SKYSEF Drive folder.
         </p>
         <div class="certificate-actions">
-          <button id="downloadPdfButton" class="button primary" type="button">Download PDF</button>
-          <button id="openPdfButton" class="button secondary" type="button">Save as PDF / Print</button>
+          <button id="downloadPdfButton" class="button primary" type="button">Download PDF again</button>
+          <button id="openPdfButton" class="button secondary" type="button">Open PDF</button>
           <button id="backToFormButton" class="button ghost-dark" type="button">Back to questionnaire</button>
         </div>
         <p id="pdfStatus" class="small-note" role="status" aria-live="polite"></p>
@@ -153,35 +154,24 @@
 
       <div class="certificate-stage">
         <main id="certificatePage" class="certificate-page" aria-label="Certificate of Participation">
-          <img class="border-image" src="assets/certificate-border.jpeg" alt="" />
+          <div class="certificate-frame" aria-hidden="true"></div>
           <section class="certificate-content">
             <img class="logo-skysef" src="assets/skysef-logo.jpeg" alt="SKYSEF" />
-
-            <h1 class="title">Certificate of</h1>
-
+            <h1 class="title">Certificate of<br><span>Participation</span></h1>
             <p class="awarded">This Certificate is awarded to</p>
-
             <div class="recipient">
               <div class="recipient-name" id="name">Name</div>
               <div class="recipient-school" id="school">School</div>
             </div>
-
             <p class="description" id="certificateDescription">
-              for participating in the Shizuoka<br />
-              Kita Youth Science Engineering<br />
-              Forum 2025, held from July 30<br />
-              to August 2, 2025, hosted and<br />
-              organized by Shizuoka Kita Junior<br />
-              and Senior High School
+              for participating in the Shizuoka Kita Youth Science Engineering Forum 2025,<br>
+              held from July 30 to August 2, 2025,<br>
+              hosted and organized by Shizuoka Kita Junior and Senior High School
             </p>
-
-            <footer class="footer">
+            <footer class="certificate-footer">
               <div class="organizer-block">
                 <img class="logo-school" src="assets/shizuoka-logo.png" alt="Shizuoka Kita logo" />
-                <div class="organizer-name">
-                  Shizuoka Kita Junior and Senior High<br />
-                  School
-                </div>
+                <div class="organizer-name">Shizuoka Kita Junior and Senior High<br>School</div>
               </div>
               <div class="signature-block">
                 <div class="principal-name">Hisao Ohashi</div>
@@ -200,8 +190,6 @@
     © 2025 SKYSEF. All Rights Reserved.
   </footer>
 
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js" integrity="sha512-BNa5rkJXqsdk8TKmApbTX8V8ecULYSC5uG7UE5gzkT/iy6OZ6vuolym2bHKEi+ssrKjJwdlBvaBFea6gFh/DaQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js" integrity="sha512-qZvrmS2ekKPF2mSznTQsxqPgnpkI4DNTlrdUmTzrDgektczlKNRdcwffGByyIGoXyo5ay1mF0MOTpvNr1C5qoA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
   <script src="assets/survey-certificate.js"></script>
 </body>
 </html>
