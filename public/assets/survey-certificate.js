@@ -1,11 +1,5 @@
-/*
-  SKYSEF questionnaire -> Apps Script -> PDF -> certificate screen.
-  - No html2canvas.
-  - No print dialog.
-  - The page transitions only after the server confirms that the response was recorded and the PDF was generated.
-  - The PDF is returned as base64 for private download and is also saved in the configured Google Drive folder by Apps Script.
-*/
-const SURVEY_ENDPOINT = ""; // Paste your deployed Apps Script Web App URL here.
+/* SKYSEF questionnaire -> Apps Script -> private PDF. */
+const SURVEY_ENDPOINT = "https://script.google.com/macros/s/AKfycbyZHbQpHVPAIc9zf2Sq24wmJUHU61wD2Jir6-DvXu7nTfkP9dJ5H5ChJyzQSA9eLEdz/exec";
 
 const SCHOOLS = [
   { school: "West Moreton Anglican College", country: "Australia" },
@@ -30,20 +24,54 @@ const SCHOOLS = [
   { school: "Holy Redeemer School Khon Kaen", country: "Thailand" },
   { school: "Other", country: "Other" }
 ];
-
 const COUNTRIES = ["Australia", "Guam", "Indonesia", "Japan", "Macau", "Taiwan", "Thailand", "Other"];
+const EVENT_DATES = [
+  { value: "2026-08-02", label: "August 2, 2026", short: "Aug. 2" },
+  { value: "2026-08-03", label: "August 3, 2026", short: "Aug. 3" },
+  { value: "2026-08-04", label: "August 4, 2026", short: "Aug. 4" },
+  { value: "2026-08-05", label: "August 5, 2026", short: "Aug. 5" }
+];
+const TIMELINE = {
+  "2026-08-02": [
+    ["13:00-13:30", "Registration 受付", "Conference Hall - Winds, 11F / 会議ホール・風"],
+    ["13:40-14:05", "Opening Ceremony", "Conference Hall - Winds, 11F"],
+    ["14:20-15:20", "Keynote Address 基調講演", "Conference Hall - Winds, 11F / 会議ホール・風"],
+    ["15:45-17:45", "Welcome Reception, Cultural Performance I 歓迎レセプション・文化交流I", "Conference Rooms 1001-1 and 1001-2, 10F"]
+  ],
+  "2026-08-03": [
+    ["09:00", "GRANSHIP opens", "GRANSHIP"],
+    ["09:30-12:00", "Oral Presentation 口頭発表", "Room 904, 9F / Room 908, 9F / Room 1001-1, 10F / Room 1001-2, 10F / Room 1002, 10F"],
+    ["12:00-14:00", "Lunch", "-"],
+    ["14:00-14:30", "Poster Setup ポスター準備", "Main Hall - Ocean, 1F / 大ホール・海"],
+    ["14:30-17:00", "Poster Session ポスターセッション", "Main Hall - Ocean, 1F"]
+  ],
+  "2026-08-04": [
+    ["09:00", "GRANSHIP opens", "GRANSHIP"],
+    ["09:30-12:00", "International Joint Project / For Teachers: Guided Tour", "Main Hall - Ocean, 1F / Meet at the entrance of GRANSHIP"],
+    ["12:00-14:00", "Lunch", "-"],
+    ["14:00-17:00", "International Joint Project", "Main Hall - Ocean, 1F"]
+  ],
+  "2026-08-05": [
+    ["09:00", "GRANSHIP opens", "GRANSHIP"],
+    ["09:30-11:00", "International Joint Project", "Main Hall - Ocean, 1F"],
+    ["11:00-13:00", "Lunch", "-"],
+    ["13:00-15:00", "Cultural Performance II", "Main Hall - Ocean, 1F"],
+    ["15:00-15:30", "Questionnaire and Certificate of Participation", "Main Hall - Ocean, 1F"],
+    ["15:30-15:45", "Commendation Ceremony 表彰式", "Main Hall - Ocean, 1F"],
+    ["15:45-16:00", "Closing Ceremony 閉会式", "Main Hall - Ocean, 1F"]
+  ]
+};
 const PROGRAM_QUESTIONS = [
-  "Opening Ceremony (Jul. 30)",
-  "Keynote Address (Jul. 30)",
-  "Welcome Dinner (Jul. 30)",
-  "Cultural Performance (Jul. 30, Aug. 2)",
-  "Poster Session (Jul. 31)",
-  "Oral Presentation (Jul. 31)",
-  "International Joint Project (Aug. 1 and Aug. 2)",
-  "For teacher, guided tour (Aug. 1)",
-  "For teacher, Teachers’ Session (Aug. 1)",
-  "Commendation Ceremony (Aug. 2)",
-  "Closing Ceremony (Aug. 2)",
+  "Opening Ceremony (Aug. 2)",
+  "Keynote Address (Aug. 2)",
+  "Welcome Reception / Cultural Performance I (Aug. 2)",
+  "Oral Presentation (Aug. 3)",
+  "Poster Session (Aug. 3)",
+  "International Joint Project (Aug. 4 and Aug. 5)",
+  "For teachers: Guided Tour (Aug. 4)",
+  "Cultural Performance II (Aug. 5)",
+  "Commendation Ceremony (Aug. 5)",
+  "Closing Ceremony (Aug. 5)",
   "Accommodation / Home Stay",
   "Transportation",
   "Schedule"
@@ -64,32 +92,47 @@ const LEARNING_QUESTIONS = [
 const PERIOD_OPTIONS = ["The bottom of July", "The top of August", "The bottom of August", "Other period"];
 const TEACHER_QUESTIONS = [
   { text: "FOR TEACHERS: The performance of my students is satisfactory.", sub: [{ name: "teacher_performance_reason", label: "How was it satisfactory?" }] },
-  { text: "FOR TEACHERS: What would you like to put an emphasis on in order for your student to demonstrate their abilities in science in an international science conference like SKYSEF 2025?", textareaOnly: true, name: "teacher_emphasis" }
+  { text: "FOR TEACHERS: What would you like to put an emphasis on in order for your student to demonstrate their abilities in science in an international science conference like SKYSEF 2026?", textareaOnly: true, name: "teacher_emphasis" }
 ];
 
-let latestPdf = null; // {base64, fileName, mimeType}
+let latestPdf = null;
 const $ = (id) => document.getElementById(id);
 
-function safeText(value, fallback) {
-  const text = String(value || "").replace(/\s+/g, " ").trim();
-  return text || fallback;
-}
+function safeText(value, fallback) { return String(value || "").replace(/\s+/g, " ").trim() || fallback; }
 function makeSubmissionId() {
   const rand = new Uint32Array(2);
   crypto.getRandomValues(rand);
   return `skysef-${Date.now()}-${Array.from(rand).map((v) => v.toString(16)).join("")}`;
 }
-function sanitizeFileName(text) {
-  return String(text || "certificate").normalize("NFKC").replace(/[\\/:*?"<>|]/g, "_").replace(/\s+/g, "_").slice(0, 80);
-}
+function sanitizeFileName(text) { return String(text || "certificate").normalize("NFKC").replace(/[\\/:*?"<>|]/g, "_").replace(/\s+/g, "_").slice(0, 80); }
 function setStatus(message, type = "") {
   const el = $("submitStatus");
   el.className = `submit-status ${type}`.trim();
   el.textContent = message || "";
 }
+function selectedDateLabel(value) { return (EVENT_DATES.find((d) => d.value === value) || EVENT_DATES[0]).label; }
+function selectedDateShort(value) { return (EVENT_DATES.find((d) => d.value === value) || EVENT_DATES[0]).short; }
+function getParticipationPeriodText() {
+  const start = $("participationStart").value;
+  const end = $("participationEnd").value;
+  if (!start || !end) return "August 2 to 5, 2026";
+  if (start === end) return selectedDateLabel(start);
+  return `${selectedDateShort(start)} to ${selectedDateShort(end)}, 2026`;
+}
+function updatePeriodPreview() {
+  const start = $("participationStart").value;
+  const end = $("participationEnd").value;
+  if (start && end && start > end) {
+    $("participationEnd").value = start;
+  }
+  const text = getParticipationPeriodText();
+  $("certificatePeriodPreview").textContent = `Certificate text: held from ${text}`;
+  $("certificateDescription").innerHTML = `for participating in the Shizuoka Kita Youth Science Engineering Forum 2026,<br>held from ${text},<br>hosted and organized by Shizuoka Kita Junior and Senior High School`;
+}
 function applyCertificateText() {
   $("name").textContent = safeText($("inputName").value, "Name");
   $("school").textContent = safeText($("inputSchool").value, "School");
+  updatePeriodPreview();
 }
 function base64ToBlob(base64, mimeType = "application/pdf") {
   const binary = atob(base64);
@@ -106,27 +149,12 @@ function downloadLatestPdf() {
   const url = URL.createObjectURL(blob);
   const a = document.createElement("a");
   a.href = url;
-  a.download = latestPdf.fileName || `SKYSEF2025_Certificate_${sanitizeFileName($("inputName").value)}.pdf`;
+  a.download = latestPdf.fileName || `SKYSEF2026_Certificate_${sanitizeFileName($("inputName").value)}.pdf`;
   document.body.appendChild(a);
   a.click();
   a.remove();
   setTimeout(() => URL.revokeObjectURL(url), 30000);
   $("pdfStatus").textContent = "PDF download started. Please check your browser download list.";
-}
-function openLatestPdf() {
-  if (!latestPdf || !latestPdf.base64) {
-    $("pdfStatus").textContent = "PDF data is not available. Please submit the questionnaire again.";
-    return;
-  }
-  const blob = base64ToBlob(latestPdf.base64, latestPdf.mimeType || "application/pdf");
-  const url = URL.createObjectURL(blob);
-  const opened = window.open(url, "_blank", "noopener,noreferrer");
-  if (!opened) {
-    $("pdfStatus").textContent = "The browser blocked the PDF tab. Please use Download PDF again.";
-  } else {
-    $("pdfStatus").textContent = "PDF opened in a new tab. Use the browser share or download button to save it.";
-  }
-  setTimeout(() => URL.revokeObjectURL(url), 120000);
 }
 function renderSelectOptions() {
   const schoolSelect = $("inputSchool");
@@ -143,6 +171,36 @@ function renderSelectOptions() {
     option.textContent = country;
     countrySelect.appendChild(option);
   });
+  ["participationStart", "participationEnd"].forEach((id) => {
+    const select = $(id);
+    EVENT_DATES.forEach((d) => {
+      const option = document.createElement("option");
+      option.value = d.value;
+      option.textContent = d.label;
+      select.appendChild(option);
+    });
+  });
+  $("participationStart").value = "2026-08-02";
+  $("participationEnd").value = "2026-08-05";
+}
+function renderTimeline(dateValue = "2026-08-02") {
+  const panel = $("timelinePanel");
+  const rows = TIMELINE[dateValue] || [];
+  panel.innerHTML = `<table><thead><tr><th>Time</th><th>Program</th><th>Venue</th></tr></thead><tbody>${rows.map((row) => `<tr><td>${row[0]}</td><td>${row[1]}</td><td>${row[2]}</td></tr>`).join("")}</tbody></table>`;
+  document.querySelectorAll(".timeline-tab").forEach((button) => button.classList.toggle("is-active", button.dataset.date === dateValue));
+}
+function renderTimelineTabs() {
+  const tabs = $("timelineTabs");
+  EVENT_DATES.forEach((d) => {
+    const button = document.createElement("button");
+    button.type = "button";
+    button.className = "timeline-tab";
+    button.dataset.date = d.value;
+    button.textContent = d.short;
+    button.addEventListener("click", () => renderTimeline(d.value));
+    tabs.appendChild(button);
+  });
+  renderTimeline("2026-08-02");
 }
 function makeRatingQuestion(question, name, required = true, indexLabel = "") {
   const wrapper = document.createElement("div");
@@ -186,7 +244,7 @@ function appendSubQuestions(wrapper, subQuestions) {
 }
 function renderQuestions() {
   PROGRAM_QUESTIONS.forEach((q, i) => {
-    const isTeacherOnly = i === 7 || i === 8;
+    const isTeacherOnly = q.toLowerCase().includes("for teachers");
     const item = makeRatingQuestion(q, `program_${i + 1}`, !isTeacherOnly, `(${i + 1}) `);
     if (isTeacherOnly) item.classList.add("teacher-program-question");
     $("programQuestions").appendChild(item);
@@ -266,13 +324,16 @@ function collectFormData() {
   const data = {
     submissionId: makeSubmissionId(),
     submittedAtClient: new Date().toISOString(),
-    event: "SKYSEF 2025",
+    event: "SKYSEF 2026",
     name: fd.get("name") || "",
     school: fd.get("school") || "",
     country: fd.get("country") || "",
     position: fd.get("position") || "",
     positionOther: fd.get("positionOther") || "",
     email: fd.get("email") || "",
+    participationStart: fd.get("participationStart") || "",
+    participationEnd: fd.get("participationEnd") || "",
+    participationPeriodText: getParticipationPeriodText(),
     liked_1: fd.get("liked_1") || "",
     liked_2: fd.get("liked_2") || "",
     liked_3: fd.get("liked_3") || "",
@@ -301,27 +362,35 @@ function collectFormData() {
   data.teacher_1_score = fd.get("teacher_1") || "";
   return data;
 }
-async function postWithRetry(data, attempts = 4) {
-  if (!SURVEY_ENDPOINT) {
-    throw new Error("SURVEY_ENDPOINT is not configured. Paste the deployed Apps Script Web App URL into public/assets/survey-certificate.js.");
-  }
+async function postWithRetry(data, attempts = 5) {
+  if (!SURVEY_ENDPOINT) throw new Error("SURVEY_ENDPOINT is not configured.");
   let lastError = null;
   for (let i = 0; i < attempts; i++) {
     try {
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 65000);
       const response = await fetch(SURVEY_ENDPOINT, {
         method: "POST",
         redirect: "follow",
         headers: { "Content-Type": "text/plain;charset=utf-8" },
-        body: JSON.stringify(data)
+        body: JSON.stringify(data),
+        signal: controller.signal
       });
+      clearTimeout(timeoutId);
       const text = await response.text();
       let json;
       try { json = JSON.parse(text); } catch (e) { throw new Error(`Server did not return JSON: ${text.slice(0, 120)}`); }
-      if (!response.ok || !json.ok) throw new Error(json.error || `Server error: ${response.status}`);
+      if (!response.ok || !json.ok) {
+        const message = json.error || `Server error: ${response.status}`;
+        const err = new Error(message);
+        err.retryable = json.retryable !== false;
+        throw err;
+      }
       return json;
     } catch (error) {
       lastError = error;
-      await new Promise((resolve) => setTimeout(resolve, 900 * Math.pow(2, i)));
+      const wait = Math.min(12000, 1000 * Math.pow(1.8, i));
+      await new Promise((resolve) => setTimeout(resolve, wait));
     }
   }
   throw lastError;
@@ -330,7 +399,7 @@ function showCertificateView(serverResult) {
   applyCertificateText();
   latestPdf = {
     base64: serverResult.pdfBase64,
-    fileName: serverResult.fileName || `SKYSEF2025_Certificate_${sanitizeFileName($("inputName").value)}.pdf`,
+    fileName: serverResult.fileName || `SKYSEF2026_Certificate_${sanitizeFileName($("inputName").value)}.pdf`,
     mimeType: serverResult.mimeType || "application/pdf"
   };
   $("questionnaireView").hidden = true;
@@ -360,14 +429,16 @@ function setSubmitting(isSubmitting) {
 }
 function init() {
   renderSelectOptions();
+  renderTimelineTabs();
   renderQuestions();
   applyCertificateText();
   toggleConditionalBlocks();
   $("inputName").addEventListener("input", applyCertificateText);
   $("inputSchool").addEventListener("change", syncCountryFromSchool);
   $("position").addEventListener("change", toggleConditionalBlocks);
+  $("participationStart").addEventListener("change", updatePeriodPreview);
+  $("participationEnd").addEventListener("change", updatePeriodPreview);
   $("downloadPdfButton").addEventListener("click", downloadLatestPdf);
-  $("openPdfButton").addEventListener("click", openLatestPdf);
   $("backToFormButton").addEventListener("click", showQuestionnaireView);
   $("surveyForm").addEventListener("submit", async (event) => {
     event.preventDefault();

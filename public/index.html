@@ -3,40 +3,45 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-  <title>SKYSEF 2025 Questionnaire and Certificate</title>
+  <title>SKYSEF 2026 Questionnaire and Certificate</title>
   <meta name="description" content="SKYSEF questionnaire and private certificate PDF generation." />
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Libre+Baskerville:wght@400;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Libre+Baskerville:wght@400;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="assets/app.css" />
   <link rel="stylesheet" href="assets/certificate.css" />
 </head>
 <body>
   <header class="site-header no-print">
     <a class="brand" href="https://szkssh00-bit.github.io/SKYSEF/" aria-label="Back to SKYSEF main site">
-      <span class="brand-mark">SKYSEF</span>
+      <span class="brand-mark">SKYSEF 2026</span>
       <span class="brand-sub">Questionnaire & Certificate</span>
     </a>
     <nav class="site-nav" aria-label="Page navigation">
       <a href="https://szkssh00-bit.github.io/SKYSEF/">Main Page</a>
+      <a href="#questionnaireTitle">Questionnaire</a>
     </nav>
   </header>
 
   <main>
     <section id="questionnaireView" class="view is-active" aria-labelledby="questionnaireTitle">
       <div class="page-hero">
-        <p class="eyebrow">Shizuoka Kita Youth Science Engineering Forum 2025</p>
+        <p class="eyebrow">Shizuoka Kita Youth Science Engineering Forum</p>
         <h1 id="questionnaireTitle">Questionnaire for Participants</h1>
         <p>
-          The SKYSEF team feels so appreciated that we could share research and friendship altogether.
-          Your opinion is important for the progression of SKYSEF. We truly appreciate your comments and suggestions.
+          Thank you for joining SKYSEF 2026. Your response will be recorded first, and then your private certificate PDF will be generated.
         </p>
+        <div class="hero-facts" aria-label="SKYSEF facts">
+          <span>Date August 2–5, 2026</span>
+          <span>Host Shizuoka Kita High School</span>
+          <span>Language English</span>
+        </div>
       </div>
 
       <section class="notice-card" aria-label="Certificate information">
-        <h2>Certificate PDF after submission</h2>
+        <h2>Private PDF generation</h2>
         <p>
-          After your response is safely recorded, your certificate PDF is generated and downloaded for you. The PDF is saved only in the SKYSEF private Drive folder and is not published on GitHub Pages.
+          After your response is safely accepted by the server, an individual Certificate of Participation PDF will be generated and downloaded. The PDF is saved in the private SKYSEF Drive folder and is not published on GitHub Pages.
         </p>
       </section>
 
@@ -56,7 +61,7 @@
                 </select>
               </label>
               <label>
-                Country <span class="required-mark">*</span>
+                Country / Region <span class="required-mark">*</span>
                 <select name="country" id="inputCountry" required>
                   <option value="">Select country / region</option>
                 </select>
@@ -82,22 +87,45 @@
           </fieldset>
 
           <fieldset class="form-card">
+            <legend>Participation period for certificate</legend>
+            <p class="scale-note">Select the period that should appear on your Certificate of Participation.</p>
+            <div class="form-grid two">
+              <label>
+                First participation date <span class="required-mark">*</span>
+                <select name="participationStart" id="participationStart" required></select>
+              </label>
+              <label>
+                Last participation date <span class="required-mark">*</span>
+                <select name="participationEnd" id="participationEnd" required></select>
+              </label>
+            </div>
+            <p id="certificatePeriodPreview" class="period-preview" aria-live="polite"></p>
+          </fieldset>
+
+          <fieldset class="form-card timeline-card">
+            <legend>SKYSEF 2026 timeline</legend>
+            <p class="scale-note">Use the schedule below to confirm the contents you attended.</p>
+            <div id="timelineTabs" class="timeline-tabs" role="tablist" aria-label="Timeline dates"></div>
+            <div id="timelinePanel" class="timeline-panel" aria-live="polite"></div>
+          </fieldset>
+
+          <fieldset class="form-card">
             <legend>SKYSEF contents</legend>
             <p class="scale-note"><strong>5</strong> = Satisfactory, <strong>3</strong> = Fair, <strong>1</strong> = Unsatisfactory.</p>
             <div id="programQuestions" class="question-list"></div>
           </fieldset>
 
           <fieldset class="form-card">
-            <legend>Items about SKYSEF 2025</legend>
+            <legend>Items about SKYSEF 2026</legend>
             <div class="split-grid">
               <div>
-                <h3>Items that you liked about SKYSEF 2025</h3>
+                <h3>Items that you liked about SKYSEF 2026</h3>
                 <label>1.<input name="liked_1" type="text" /></label>
                 <label>2.<input name="liked_2" type="text" /></label>
                 <label>3.<input name="liked_3" type="text" /></label>
               </div>
               <div>
-                <h3>Items that you think SKYSEF 2025 should be improved</h3>
+                <h3>Items that you think SKYSEF 2026 should be improved</h3>
                 <label>1.<input name="improved_1" type="text" /></label>
                 <label>2.<input name="improved_2" type="text" /></label>
                 <label>3.<input name="improved_3" type="text" /></label>
@@ -142,11 +170,10 @@
         <p class="eyebrow">Certificate of Participation</p>
         <h1 id="certificateTitle">Your certificate has been created.</h1>
         <p>
-          Your questionnaire response has been recorded, and the certificate PDF has been generated. The file is also saved in the private SKYSEF Drive folder.
+          Your questionnaire response has been recorded, and the certificate PDF has been generated. The PDF is also saved in the private SKYSEF Drive folder.
         </p>
         <div class="certificate-actions">
           <button id="downloadPdfButton" class="button primary" type="button">Download PDF again</button>
-          <button id="openPdfButton" class="button secondary" type="button">Open PDF</button>
           <button id="backToFormButton" class="button ghost-dark" type="button">Back to questionnaire</button>
         </div>
         <p id="pdfStatus" class="small-note" role="status" aria-live="polite"></p>
@@ -164,8 +191,8 @@
               <div class="recipient-school" id="school">School</div>
             </div>
             <p class="description" id="certificateDescription">
-              for participating in the Shizuoka Kita Youth Science Engineering Forum 2025,<br>
-              held from July 30 to August 2, 2025,<br>
+              for participating in the Shizuoka Kita Youth Science Engineering Forum 2026,<br>
+              held from August 2 to 5, 2026,<br>
               hosted and organized by Shizuoka Kita Junior and Senior High School
             </p>
             <footer class="certificate-footer">
@@ -187,7 +214,7 @@
 
   <footer class="site-footer no-print">
     Shizuoka Kita Junior and Senior High School<br />
-    © 2025 SKYSEF. All Rights Reserved.
+    © 2026 SKYSEF. All Rights Reserved.
   </footer>
 
   <script src="assets/survey-certificate.js"></script>
