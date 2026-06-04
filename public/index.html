@@ -19,7 +19,7 @@
     </a>
     <nav class="site-nav" aria-label="Page navigation">
       <a href="https://szkssh00-bit.github.io/SKYSEF/">Main Page</a>
-      <a href="#participant">Start</a>
+      <a href="#admin" id="adminNavLink">Admin</a>
     </nav>
   </header>
 
@@ -213,6 +213,80 @@
         </main>
       </div>
     </section>
+
+    <section id="adminView" class="view admin-view" aria-labelledby="adminTitle" hidden>
+      <div class="page-hero admin-hero">
+        <p class="eyebrow">SKYSEF administration</p>
+        <h1 id="adminTitle">Admin</h1>
+        <p>Edit the schools, dates, timeline, questionnaire items, and common wording for future SKYSEF events.</p>
+      </div>
+
+      <section class="form-shell">
+        <form id="adminLoginForm" class="survey-form admin-login" novalidate>
+          <fieldset class="form-card">
+            <legend>Admin login</legend>
+            <label>Password
+              <input id="adminPassword" type="password" autocomplete="current-password" placeholder="Password" required />
+            </label>
+            <div class="submit-panel static-panel">
+              <button class="button primary" type="submit">Open admin editor</button>
+              <p id="adminLoginStatus" class="submit-status" role="status" aria-live="polite"></p>
+            </div>
+          </fieldset>
+        </form>
+
+        <form id="adminEditorForm" class="survey-form admin-editor" hidden>
+          <fieldset class="form-card">
+            <legend>Basic settings</legend>
+            <div class="form-grid two">
+              <label>Event name
+                <input id="adminEventName" type="text" placeholder="SKYSEF 2026" />
+              </label>
+              <label>Certificate organization text
+                <input id="adminOrganizerName" type="text" placeholder="Shizuoka Kita Junior and Senior High School" />
+              </label>
+            </div>
+          </fieldset>
+
+          <fieldset class="form-card admin-edit-card">
+            <legend>Schools</legend>
+            <p class="scale-note">One school per line. Format: <code>School Name, Country</code></p>
+            <textarea id="adminSchools" rows="10"></textarea>
+          </fieldset>
+
+          <fieldset class="form-card admin-edit-card">
+            <legend>Event dates</legend>
+            <p class="scale-note">One date per line. Format: <code>YYYY-MM-DD, August 2, 2026, Aug. 2</code></p>
+            <textarea id="adminEventDates" rows="6"></textarea>
+          </fieldset>
+
+          <fieldset class="form-card admin-edit-card">
+            <legend>Timeline</legend>
+            <p class="scale-note">JSON object. Example: <code>{"2026-08-02":[["13:00","Registration","Venue"]]}</code></p>
+            <textarea id="adminTimeline" rows="12" spellcheck="false"></textarea>
+          </fieldset>
+
+          <fieldset class="form-card admin-edit-card">
+            <legend>Program questions</legend>
+            <p class="scale-note">JSON array. Each item can include <code>text</code>, <code>dates</code>, <code>teacherOnly</code>, and <code>accommodationOnly</code>.</p>
+            <textarea id="adminProgramQuestions" rows="12" spellcheck="false"></textarea>
+          </fieldset>
+
+          <fieldset class="form-card admin-edit-card">
+            <legend>Liked / improved dropdown options</legend>
+            <p class="scale-note">One item per line.</p>
+            <textarea id="adminItemOptions" rows="8"></textarea>
+          </fieldset>
+
+          <div class="submit-panel static-panel">
+            <button id="adminSaveButton" class="button primary" type="submit">Save settings</button>
+            <button id="adminReloadButton" class="button ghost-dark" type="button">Reload from database</button>
+            <p id="adminSaveStatus" class="submit-status" role="status" aria-live="polite"></p>
+          </div>
+        </form>
+      </section>
+    </section>
+
   </main>
 
   <footer class="site-footer no-print">

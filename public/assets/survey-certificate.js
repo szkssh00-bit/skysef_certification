@@ -1,7 +1,9 @@
 /* SKYSEF questionnaire -> background certificate PDF -> final record. */
-const SURVEY_ENDPOINT = "https://script.google.com/macros/s/AKfycbzsKFw4St6VrZTxY5HM1xL8UahHLAeW30zupyBvRAO-6patt8DaZ7Hx3beIee2J-VQ/exec";
+const SURVEY_ENDPOINT = "https://script.google.com/macros/s/AKfycbwa18txgtOGAMqqJXcu9_95_VKfiemYNgtNJnPIr4XYcvyvRlRgmclCxerp0ZMmNX8z/exec";
+const ADMIN_PASSWORD_CLIENT = "set";
+let remoteConfigLoaded = false;
 
-const SCHOOLS = [
+let SCHOOLS = [
   { school: "West Moreton Anglican College", country: "Australia" },
   { school: "St. John's School", country: "Guam" },
   { school: "Mentari Intercultural School", country: "Indonesia" },
@@ -24,14 +26,14 @@ const SCHOOLS = [
   { school: "Holy Redeemer School Khon Kaen", country: "Thailand" },
   { school: "Other", country: "Other" }
 ];
-const COUNTRIES = ["Australia", "Guam", "Indonesia", "Japan", "Macau", "Taiwan", "Thailand", "Other"];
-const EVENT_DATES = [
+let COUNTRIES = ["Australia", "Guam", "Indonesia", "Japan", "Macau", "Taiwan", "Thailand", "Other"];
+let EVENT_DATES = [
   { value: "2026-08-02", label: "August 2, 2026", short: "Aug. 2" },
   { value: "2026-08-03", label: "August 3, 2026", short: "Aug. 3" },
   { value: "2026-08-04", label: "August 4, 2026", short: "Aug. 4" },
   { value: "2026-08-05", label: "August 5, 2026", short: "Aug. 5" }
 ];
-const TIMELINE = {
+let TIMELINE = {
   "2026-08-02": [
     ["13:00-13:30", "Registration 受付", "Conference Hall - Winds, 11F / 会議ホール・風"],
     ["13:40-14:05", "Opening Ceremony", "Conference Hall - Winds, 11F"],
@@ -61,7 +63,7 @@ const TIMELINE = {
     ["15:45-16:00", "Closing Ceremony 閉会式", "Main Hall - Ocean, 1F"]
   ]
 };
-const PROGRAM_QUESTIONS = [
+let PROGRAM_QUESTIONS = [
   { text: "Opening Ceremony (Aug. 2)", dates: ["2026-08-02"], teacherOnly: false },
   { text: "Keynote Address (Aug. 2)", dates: ["2026-08-02"], teacherOnly: false },
   { text: "Welcome Reception / Cultural Performance I (Aug. 2)", dates: ["2026-08-02"], teacherOnly: false },
@@ -77,8 +79,8 @@ const PROGRAM_QUESTIONS = [
   { text: "Transportation", dates: ["2026-08-02", "2026-08-03", "2026-08-04", "2026-08-05"], teacherOnly: false, general: true },
   { text: "Schedule", dates: ["2026-08-02", "2026-08-03", "2026-08-04", "2026-08-05"], teacherOnly: false, general: true }
 ];
-const ITEM_EXTRA_OPTIONS = ["Research discussion", "Scientific English communication", "International exchange", "Friendship and networking", "Venue and facilities", "Food and reception", "Other"];
-const LEARNING_QUESTIONS = [
+let ITEM_EXTRA_OPTIONS = ["Research discussion", "Scientific English communication", "International exchange", "Friendship and networking", "Venue and facilities", "Food and reception", "Other"];
+let LEARNING_QUESTIONS = [
   { text: "I was inspired to engage more in the discussion.", sub: [{ name: "inspired_by", label: "Whom were you inspired by?" }, { name: "inspired_how", label: "How were you inspired?" }] },
   { text: "My communication with the other participating students was satisfactory.", sub: [{ name: "communication_reason", label: "Why do you feel so?" }] },
   { text: "My presentation(s) was/were satisfactory.", sub: [{ name: "presentation_reason", label: "Why do you feel so?" }] },
@@ -88,8 +90,8 @@ const LEARNING_QUESTIONS = [
   { text: "I would like to learn English expression of scientific items more.", sub: [] },
   { text: "I would like to acquire scientific skills and abilities to participate in the scientific activities in an international setting.", sub: [] }
 ];
-const PERIOD_OPTIONS = ["The bottom of July", "The top of August", "The bottom of August", "Other period"];
-const TEACHER_QUESTIONS = [
+let PERIOD_OPTIONS = ["The bottom of July", "The top of August", "The bottom of August", "Other period"];
+let TEACHER_QUESTIONS = [
   { text: "FOR TEACHERS: The performance of my students is satisfactory.", sub: [{ name: "teacher_performance_reason", label: "How was it satisfactory?" }] },
   { text: "FOR TEACHERS: What would you like to put an emphasis on in order for your student to demonstrate their abilities in science in an international science conference like SKYSEF 2026?", textareaOnly: true, name: "teacher_emphasis" }
 ];
@@ -215,6 +217,8 @@ function downloadLatestPdf() {
   $("pdfStatus").textContent = "PDF is ready. If the download did not start, press Download PDF again.";
 }
 function renderSelectOptions() {
+  $("inputSchool").innerHTML = '<option value="">Select your school</option>';
+  $("inputCountry").innerHTML = '<option value="">Select country / region</option>';
   SCHOOLS.forEach(({ school }) => {
     const option = document.createElement("option");
     option.value = school;
@@ -249,6 +253,7 @@ function renderTimeline(dateValue = "2026-08-02") {
 }
 function renderTimelineTabs() {
   const tabs = $("timelineTabs");
+  tabs.innerHTML = "";
   EVENT_DATES.forEach((d) => {
     const button = document.createElement("button");
     button.type = "button";
@@ -258,7 +263,7 @@ function renderTimelineTabs() {
     button.addEventListener("click", () => renderTimeline(d.value));
     tabs.appendChild(button);
   });
-  renderTimeline("2026-08-02");
+  renderTimeline((EVENT_DATES[0] || { value: "2026-08-02" }).value);
 }
 function makeRatingQuestion(question, name, required = true, indexLabel = "") {
   const wrapper = document.createElement("div");
@@ -301,6 +306,10 @@ function appendSubQuestions(wrapper, subQuestions) {
   wrapper.appendChild(box);
 }
 function renderQuestions() {
+  $("programQuestions").innerHTML = "";
+  $("learningQuestions").innerHTML = "";
+  $("periodQuestion").innerHTML = "";
+  $("teacherQuestions").innerHTML = "";
   PROGRAM_QUESTIONS.forEach((q, i) => {
     const item = makeRatingQuestion(q.text, `program_${i + 1}`, !q.teacherOnly, `(${i + 1}) `);
     item.classList.add("program-question");
@@ -556,7 +565,7 @@ function startBackgroundPdf() {
     });
 }
 function showView(viewId) {
-  ["participantView", "questionnaireView", "certificateView"].forEach((id) => {
+  ["participantView", "questionnaireView", "certificateView", "adminView"].forEach((id) => {
     const el = $(id);
     const active = id === viewId;
     el.hidden = !active;
@@ -626,7 +635,150 @@ async function handleSubmit(event) {
   }
   setButtonBusy($("submitButton"), false, "Submitting...", "Submit");
 }
-function init() {
+
+function csvLinesToSchools(text) {
+  return String(text || "").split(/\r?\n/).map((line) => line.trim()).filter(Boolean).map((line) => {
+    const parts = line.split(",");
+    return { school: (parts[0] || "").trim(), country: (parts.slice(1).join(",") || "Other").trim() || "Other" };
+  }).filter((item) => item.school);
+}
+function schoolsToCsvLines(list) {
+  return (list || []).map((item) => `${item.school}, ${item.country || "Other"}`).join("\n");
+}
+function csvLinesToEventDates(text) {
+  return String(text || "").split(/\r?\n/).map((line) => line.trim()).filter(Boolean).map((line) => {
+    const parts = line.split(",").map((p) => p.trim());
+    return { value: parts[0], label: parts[1] || parts[0], short: parts[2] || parts[1] || parts[0] };
+  }).filter((item) => item.value);
+}
+function eventDatesToCsvLines(list) {
+  return (list || []).map((item) => `${item.value}, ${item.label}, ${item.short}`).join("\n");
+}
+function optionsToLines(list) { return (list || []).join("\n"); }
+function linesToOptions(text) { return String(text || "").split(/\r?\n/).map((line) => line.trim()).filter(Boolean); }
+function rebuildInteractiveContent() {
+  renderSelectOptions();
+  renderTimelineTabs();
+  renderQuestions();
+  applyCertificateText();
+  toggleConditionalBlocks();
+}
+async function loadRemoteConfig() {
+  try {
+    const json = await postWithRetry({ mode: "getConfig", adminPassword: "" }, 2);
+    if (json && json.ok && json.config) {
+      applyRemoteConfig(json.config);
+      remoteConfigLoaded = true;
+    }
+  } catch (error) {
+    console.warn("Remote config could not be loaded. Using bundled defaults.", error);
+  }
+}
+function applyRemoteConfig(config) {
+  if (!config || typeof config !== "object") return;
+  if (Array.isArray(config.schools) && config.schools.length) SCHOOLS = config.schools;
+  if (Array.isArray(config.countries) && config.countries.length) COUNTRIES = config.countries;
+  if (Array.isArray(config.eventDates) && config.eventDates.length) EVENT_DATES = config.eventDates;
+  if (config.timeline && typeof config.timeline === "object") TIMELINE = config.timeline;
+  if (Array.isArray(config.programQuestions) && config.programQuestions.length) PROGRAM_QUESTIONS = config.programQuestions;
+  if (Array.isArray(config.itemExtraOptions) && config.itemExtraOptions.length) ITEM_EXTRA_OPTIONS = config.itemExtraOptions;
+  if (Array.isArray(config.periodOptions) && config.periodOptions.length) PERIOD_OPTIONS = config.periodOptions;
+}
+function fillAdminEditor(config = null) {
+  const c = config || {
+    eventName: "SKYSEF 2026",
+    organizerName: "Shizuoka Kita Junior and Senior High School",
+    schools: SCHOOLS,
+    eventDates: EVENT_DATES,
+    timeline: TIMELINE,
+    programQuestions: PROGRAM_QUESTIONS,
+    itemExtraOptions: ITEM_EXTRA_OPTIONS
+  };
+  $("adminEventName").value = c.eventName || "SKYSEF 2026";
+  $("adminOrganizerName").value = c.organizerName || "Shizuoka Kita Junior and Senior High School";
+  $("adminSchools").value = schoolsToCsvLines(c.schools || SCHOOLS);
+  $("adminEventDates").value = eventDatesToCsvLines(c.eventDates || EVENT_DATES);
+  $("adminTimeline").value = JSON.stringify(c.timeline || TIMELINE, null, 2);
+  $("adminProgramQuestions").value = JSON.stringify(c.programQuestions || PROGRAM_QUESTIONS, null, 2);
+  $("adminItemOptions").value = optionsToLines(c.itemExtraOptions || ITEM_EXTRA_OPTIONS);
+}
+function collectAdminConfig() {
+  return {
+    eventName: $("adminEventName").value.trim() || "SKYSEF 2026",
+    organizerName: $("adminOrganizerName").value.trim() || "Shizuoka Kita Junior and Senior High School",
+    schools: csvLinesToSchools($("adminSchools").value),
+    countries: Array.from(new Set(csvLinesToSchools($("adminSchools").value).map((item) => item.country).filter(Boolean).concat(["Other"]))),
+    eventDates: csvLinesToEventDates($("adminEventDates").value),
+    timeline: JSON.parse($("adminTimeline").value || "{}"),
+    programQuestions: JSON.parse($("adminProgramQuestions").value || "[]"),
+    itemExtraOptions: linesToOptions($("adminItemOptions").value)
+  };
+}
+async function openAdminEditor(password) {
+  if (password !== ADMIN_PASSWORD_CLIENT) {
+    setStatus("adminLoginStatus", "Incorrect password.", "error");
+    return;
+  }
+  setStatus("adminLoginStatus", "Loading admin data...", "ok");
+  try {
+    const json = await postWithRetry({ mode: "getConfig", adminPassword: password }, 2);
+    const config = json.config || {};
+    applyRemoteConfig(config);
+    fillAdminEditor(config);
+    $("adminEditorForm").hidden = false;
+    setStatus("adminLoginStatus", "Admin editor opened.", "ok");
+  } catch (error) {
+    fillAdminEditor();
+    $("adminEditorForm").hidden = false;
+    setStatus("adminLoginStatus", `Admin editor opened with bundled data. ${error.message}`, "error");
+  }
+}
+async function handleAdminLogin(event) {
+  event.preventDefault();
+  await openAdminEditor($("adminPassword").value);
+}
+async function handleAdminSave(event) {
+  event.preventDefault();
+  const password = $("adminPassword").value;
+  if (password !== ADMIN_PASSWORD_CLIENT) {
+    setStatus("adminSaveStatus", "Incorrect password.", "error");
+    return;
+  }
+  let config;
+  try {
+    config = collectAdminConfig();
+  } catch (error) {
+    setStatus("adminSaveStatus", `Invalid JSON: ${error.message}`, "error");
+    return;
+  }
+  setButtonBusy($("adminSaveButton"), true, "Saving...", "Save settings");
+  try {
+    const json = await postWithRetry({ mode: "updateConfig", adminPassword: password, config }, 3);
+    applyRemoteConfig(json.config || config);
+    rebuildInteractiveContent();
+    setStatus("adminSaveStatus", "Settings saved to the spreadsheet database.", "ok");
+  } catch (error) {
+    setStatus("adminSaveStatus", `Save failed: ${error.message}`, "error");
+  } finally {
+    setButtonBusy($("adminSaveButton"), false, "Saving...", "Save settings");
+  }
+}
+async function handleAdminReload() {
+  const password = $("adminPassword").value;
+  setStatus("adminSaveStatus", "Reloading...", "ok");
+  try {
+    const json = await postWithRetry({ mode: "getConfig", adminPassword: password }, 2);
+    applyRemoteConfig(json.config || {});
+    fillAdminEditor(json.config || {});
+    rebuildInteractiveContent();
+    setStatus("adminSaveStatus", "Reloaded from the spreadsheet database.", "ok");
+  } catch (error) {
+    setStatus("adminSaveStatus", `Reload failed: ${error.message}`, "error");
+  }
+}
+
+async function init() {
+  await loadRemoteConfig();
   renderSelectOptions();
   renderTimelineTabs();
   renderQuestions();
@@ -643,6 +795,10 @@ function init() {
   $("backToQuestionnaireButton").addEventListener("click", showQuestionnaireView);
   $("participantForm").addEventListener("submit", handleNext);
   $("surveyForm").addEventListener("submit", handleSubmit);
-  showView("participantView");
+  $("adminNavLink").addEventListener("click", (event) => { event.preventDefault(); showView("adminView"); history.replaceState(null, "", "#admin"); fillAdminEditor(); });
+  $("adminLoginForm").addEventListener("submit", handleAdminLogin);
+  $("adminEditorForm").addEventListener("submit", handleAdminSave);
+  $("adminReloadButton").addEventListener("click", handleAdminReload);
+  if (location.hash === "#admin") { showView("adminView"); fillAdminEditor(); } else { showView("participantView"); }
 }
 document.addEventListener("DOMContentLoaded", init);

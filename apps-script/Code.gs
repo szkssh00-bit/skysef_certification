@@ -11,7 +11,8 @@ const CONFIG = {
   EVENT_NAME: 'SKYSEF 2026',
   LOGO_SKYSEF_URL: 'https://szkssh00-bit.github.io/skysef_certification/assets/skysef-logo.jpeg',
   LOGO_SCHOOL_URL: 'https://szkssh00-bit.github.io/skysef_certification/assets/shizuoka-logo.png',
-  SEAL_URL: 'https://szkssh00-bit.github.io/skysef_certification/assets/principal-seal.png'
+  SEAL_URL: 'https://szkssh00-bit.github.io/skysef_certification/assets/principal-seal.png',
+  ADMIN_PASSWORD: 'set'
 };
 
 const EVENT_DATES = [
@@ -20,6 +21,82 @@ const EVENT_DATES = [
   { value: '2026-08-04', label: 'August 4, 2026', short: 'Aug. 4' },
   { value: '2026-08-05', label: 'August 5, 2026', short: 'Aug. 5' }
 ];
+
+const DEFAULT_SCHOOLS = [
+  { school: 'West Moreton Anglican College', country: 'Australia' },
+  { school: "St. John's School", country: 'Guam' },
+  { school: 'Mentari Intercultural School', country: 'Indonesia' },
+  { school: 'Hyogo Prefectural Tatsuno High School', country: 'Japan' },
+  { school: 'Yasuda Gakuen Junior and Senior High School', country: 'Japan' },
+  { school: 'Osaka Prefectural Senri High School', country: 'Japan' },
+  { school: 'Shizuoka Prefectural Yaizu Chuo High School', country: 'Japan' },
+  { school: 'Takada Junior & Senior High School', country: 'Japan' },
+  { school: 'Shizuoka Agriculture High School', country: 'Japan' },
+  { school: 'Shizuoka Kita Junior High School', country: 'Japan' },
+  { school: 'Shizuoka Kita High School', country: 'Japan' },
+  { school: 'Pui Ching Middle School', country: 'Macau' },
+  { school: 'The Affiliated Senior High School of National Chi-Nan University', country: 'Taiwan' },
+  { school: 'Taichung Municipal HUI-WEN High School', country: 'Taiwan' },
+  { school: "National Lan-Yang Girls' Senior High School", country: 'Taiwan' },
+  { school: 'Taichung Municipal Taichung First Senior High School', country: 'Taiwan' },
+  { school: 'Chia-Yi Senior High School', country: 'Taiwan' },
+  { school: 'Princess Chulabhorn Science High School Loei', country: 'Thailand' },
+  { school: 'Holy Redeemer North Eastern Region School', country: 'Thailand' },
+  { school: 'Holy Redeemer School Khon Kaen', country: 'Thailand' },
+  { school: 'Other', country: 'Other' }
+];
+
+const DEFAULT_TIMELINE = {
+  '2026-08-02': [
+    ['13:00-13:30', 'Registration 受付', 'Conference Hall - Winds, 11F / 会議ホール・風'],
+    ['13:40-14:05', 'Opening Ceremony', 'Conference Hall - Winds, 11F'],
+    ['14:20-15:20', 'Keynote Address 基調講演', 'Conference Hall - Winds, 11F / 会議ホール・風'],
+    ['15:45-17:45', 'Welcome Reception, Cultural Performance I 歓迎レセプション・文化交流I', 'Conference Rooms 1001-1 and 1001-2, 10F']
+  ],
+  '2026-08-03': [
+    ['09:00', 'GRANSHIP opens', 'GRANSHIP'],
+    ['09:30-12:00', 'Oral Presentation 口頭発表', 'Room 904, 9F / Room 908, 9F / Room 1001-1, 10F / Room 1001-2, 10F / Room 1002, 10F'],
+    ['12:00-14:00', 'Lunch', '-'],
+    ['14:00-14:30', 'Poster Setup ポスター準備', 'Main Hall - Ocean, 1F / 大ホール・海'],
+    ['14:30-17:00', 'Poster Session ポスターセッション', 'Main Hall - Ocean, 1F']
+  ],
+  '2026-08-04': [
+    ['09:00', 'GRANSHIP opens', 'GRANSHIP'],
+    ['09:30-12:00', 'International Joint Project / For Teachers: Guided Tour', 'Main Hall - Ocean, 1F / Meet at the entrance of GRANSHIP'],
+    ['12:00-14:00', 'Lunch', '-'],
+    ['14:00-17:00', 'International Joint Project', 'Main Hall - Ocean, 1F']
+  ],
+  '2026-08-05': [
+    ['09:00', 'GRANSHIP opens', 'GRANSHIP'],
+    ['09:30-11:00', 'International Joint Project', 'Main Hall - Ocean, 1F'],
+    ['11:00-13:00', 'Lunch', '-'],
+    ['13:00-15:00', 'Cultural Performance II', 'Main Hall - Ocean, 1F'],
+    ['15:00-15:30', 'Questionnaire and Certificate of Participation', 'Main Hall - Ocean, 1F'],
+    ['15:30-15:45', 'Commendation Ceremony 表彰式', 'Main Hall - Ocean, 1F'],
+    ['15:45-16:00', 'Closing Ceremony 閉会式', 'Main Hall - Ocean, 1F']
+  ]
+};
+
+const DEFAULT_PROGRAM_QUESTIONS = [
+  { text: 'Opening Ceremony (Aug. 2)', dates: ['2026-08-02'], teacherOnly: false },
+  { text: 'Keynote Address (Aug. 2)', dates: ['2026-08-02'], teacherOnly: false },
+  { text: 'Welcome Reception / Cultural Performance I (Aug. 2)', dates: ['2026-08-02'], teacherOnly: false },
+  { text: 'Cultural Performance II (Aug. 5)', dates: ['2026-08-05'], teacherOnly: false },
+  { text: 'Poster Session (Aug. 3)', dates: ['2026-08-03'], teacherOnly: false },
+  { text: 'Oral Presentation (Aug. 3)', dates: ['2026-08-03'], teacherOnly: false },
+  { text: 'International Joint Project (Aug. 4 and Aug. 5)', dates: ['2026-08-04', '2026-08-05'], teacherOnly: false },
+  { text: 'For teachers: Guided Tour (Aug. 4)', dates: ['2026-08-04'], teacherOnly: true },
+  { text: 'For teachers: Teachers’ Session (Aug. 4)', dates: ['2026-08-04'], teacherOnly: true },
+  { text: 'Commendation Ceremony (Aug. 5)', dates: ['2026-08-05'], teacherOnly: false },
+  { text: 'Closing Ceremony (Aug. 5)', dates: ['2026-08-05'], teacherOnly: false },
+  { text: 'Accommodation / Home Stay', dates: ['2026-08-02', '2026-08-03', '2026-08-04', '2026-08-05'], teacherOnly: false, general: true, accommodationOnly: true },
+  { text: 'Transportation', dates: ['2026-08-02', '2026-08-03', '2026-08-04', '2026-08-05'], teacherOnly: false, general: true },
+  { text: 'Schedule', dates: ['2026-08-02', '2026-08-03', '2026-08-04', '2026-08-05'], teacherOnly: false, general: true }
+];
+
+const DEFAULT_ITEM_OPTIONS = ['Research discussion', 'Scientific English communication', 'International exchange', 'Friendship and networking', 'Venue and facilities', 'Food and reception', 'Other'];
+const DEFAULT_PERIOD_OPTIONS = ['The bottom of July', 'The top of August', 'The bottom of August', 'Other period'];
+
 
 const HEADERS = [
   'serverAcceptedAt', 'submissionId', 'event', 'name', 'school', 'country', 'position', 'positionOther', 'email', 'accommodationUse',
@@ -115,6 +192,16 @@ function doPost(e) {
     const raw = e && e.postData && e.postData.contents ? e.postData.contents : '{}';
     data = JSON.parse(raw);
     const mode = data.mode || 'recordOnly';
+
+    if (mode === 'getConfig') {
+      return json_({ ok: true, mode: mode, config: getConfig_() });
+    }
+
+    if (mode === 'updateConfig') {
+      validateAdmin_(data);
+      const savedConfig = updateConfig_(data.config || {});
+      return json_({ ok: true, mode: mode, config: savedConfig });
+    }
 
     validateParticipant_(data);
     data.serverAcceptedAt = data.serverAcceptedAt || started.toISOString();
@@ -236,6 +323,154 @@ function doPost(e) {
   }
 }
 
+
+function validateAdmin_(data) {
+  if (String(data.adminPassword || '') !== CONFIG.ADMIN_PASSWORD) {
+    throw new Error('Invalid admin password.');
+  }
+}
+
+function getConfig_() {
+  const ss = SpreadsheetApp.openById(CONFIG.SPREADSHEET_ID);
+  ensureConfigSheets_(ss);
+
+  const schools = readRows_(ss, 'Config_Schools').map(function (r) {
+    return { school: r[0], country: r[1] || 'Other' };
+  }).filter(function (x) { return x.school; });
+
+  const eventDates = readRows_(ss, 'Config_EventDates').map(function (r) {
+    return { value: r[0], label: r[1] || r[0], short: r[2] || r[1] || r[0] };
+  }).filter(function (x) { return x.value; });
+
+  const timeline = {};
+  readRows_(ss, 'Config_Timeline').forEach(function (r) {
+    const date = r[0];
+    if (!date) return;
+    if (!timeline[date]) timeline[date] = [];
+    timeline[date].push([r[1] || '', r[2] || '', r[3] || '']);
+  });
+
+  const programQuestions = readRows_(ss, 'Config_ProgramQuestions').map(function (r) {
+    return {
+      text: r[0],
+      dates: parseJsonSafe_(r[1], []),
+      teacherOnly: toBool_(r[2]),
+      accommodationOnly: toBool_(r[3]),
+      general: toBool_(r[4])
+    };
+  }).filter(function (x) { return x.text; });
+
+  const itemExtraOptions = readRows_(ss, 'Config_ItemOptions').map(function (r) { return r[0]; }).filter(String);
+  const textRows = readRows_(ss, 'Config_Texts');
+  const texts = {};
+  textRows.forEach(function (r) { if (r[0]) texts[r[0]] = r[1] || ''; });
+
+  const countries = Array.from(new Set(schools.map(function (s) { return s.country || 'Other'; }).concat(['Other'])));
+
+  return {
+    eventName: texts.eventName || CONFIG.EVENT_NAME,
+    organizerName: texts.organizerName || 'Shizuoka Kita Junior and Senior High School',
+    schools: schools.length ? schools : DEFAULT_SCHOOLS,
+    countries: countries,
+    eventDates: eventDates.length ? eventDates : EVENT_DATES,
+    timeline: Object.keys(timeline).length ? timeline : DEFAULT_TIMELINE,
+    programQuestions: programQuestions.length ? programQuestions : DEFAULT_PROGRAM_QUESTIONS,
+    itemExtraOptions: itemExtraOptions.length ? itemExtraOptions : DEFAULT_ITEM_OPTIONS,
+    periodOptions: DEFAULT_PERIOD_OPTIONS
+  };
+}
+
+function updateConfig_(config) {
+  const ss = SpreadsheetApp.openById(CONFIG.SPREADSHEET_ID);
+  ensureConfigSheets_(ss);
+
+  writeSheet_(ss, 'Config_Texts', ['key', 'value'], [
+    ['eventName', config.eventName || CONFIG.EVENT_NAME],
+    ['organizerName', config.organizerName || 'Shizuoka Kita Junior and Senior High School']
+  ]);
+
+  writeSheet_(ss, 'Config_Schools', ['school', 'country'], (config.schools || DEFAULT_SCHOOLS).map(function (s) {
+    return [s.school || '', s.country || 'Other'];
+  }));
+
+  writeSheet_(ss, 'Config_EventDates', ['value', 'label', 'short'], (config.eventDates || EVENT_DATES).map(function (d) {
+    return [d.value || '', d.label || d.value || '', d.short || d.label || d.value || ''];
+  }));
+
+  const timelineRows = [];
+  const timeline = config.timeline || DEFAULT_TIMELINE;
+  Object.keys(timeline).forEach(function (date) {
+    (timeline[date] || []).forEach(function (row) {
+      timelineRows.push([date, row[0] || '', row[1] || '', row[2] || '']);
+    });
+  });
+  writeSheet_(ss, 'Config_Timeline', ['date', 'time', 'program', 'venue'], timelineRows);
+
+  writeSheet_(ss, 'Config_ProgramQuestions', ['text', 'datesJson', 'teacherOnly', 'accommodationOnly', 'general'], (config.programQuestions || DEFAULT_PROGRAM_QUESTIONS).map(function (q) {
+    return [q.text || '', JSON.stringify(q.dates || []), !!q.teacherOnly, !!q.accommodationOnly, !!q.general];
+  }));
+
+  writeSheet_(ss, 'Config_ItemOptions', ['label'], (config.itemExtraOptions || DEFAULT_ITEM_OPTIONS).map(function (label) {
+    return [label];
+  }));
+
+  return getConfig_();
+}
+
+function ensureConfigSheets_(ss) {
+  const sheets = {
+    Config_Texts: { header: ['key', 'value'], rows: [['eventName', CONFIG.EVENT_NAME], ['organizerName', 'Shizuoka Kita Junior and Senior High School']] },
+    Config_Schools: { header: ['school', 'country'], rows: DEFAULT_SCHOOLS.map(function (s) { return [s.school, s.country]; }) },
+    Config_EventDates: { header: ['value', 'label', 'short'], rows: EVENT_DATES.map(function (d) { return [d.value, d.label, d.short]; }) },
+    Config_Timeline: { header: ['date', 'time', 'program', 'venue'], rows: timelineDefaultRows_() },
+    Config_ProgramQuestions: { header: ['text', 'datesJson', 'teacherOnly', 'accommodationOnly', 'general'], rows: DEFAULT_PROGRAM_QUESTIONS.map(function (q) { return [q.text, JSON.stringify(q.dates || []), !!q.teacherOnly, !!q.accommodationOnly, !!q.general]; }) },
+    Config_ItemOptions: { header: ['label'], rows: DEFAULT_ITEM_OPTIONS.map(function (x) { return [x]; }) }
+  };
+
+  Object.keys(sheets).forEach(function (name) {
+    let sheet = ss.getSheetByName(name);
+    if (!sheet) sheet = ss.insertSheet(name);
+    if (sheet.getLastRow() === 0) {
+      writeSheet_(ss, name, sheets[name].header, sheets[name].rows);
+    }
+  });
+}
+
+function timelineDefaultRows_() {
+  const rows = [];
+  Object.keys(DEFAULT_TIMELINE).forEach(function (date) {
+    DEFAULT_TIMELINE[date].forEach(function (row) {
+      rows.push([date, row[0], row[1], row[2]]);
+    });
+  });
+  return rows;
+}
+
+function readRows_(ss, sheetName) {
+  const sheet = ss.getSheetByName(sheetName);
+  if (!sheet || sheet.getLastRow() < 2) return [];
+  return sheet.getRange(2, 1, sheet.getLastRow() - 1, Math.max(1, sheet.getLastColumn())).getValues();
+}
+
+function writeSheet_(ss, sheetName, header, rows) {
+  let sheet = ss.getSheetByName(sheetName);
+  if (!sheet) sheet = ss.insertSheet(sheetName);
+  sheet.clearContents();
+  sheet.getRange(1, 1, 1, header.length).setValues([header]);
+  if (rows && rows.length) {
+    sheet.getRange(2, 1, rows.length, header.length).setValues(rows);
+  }
+  sheet.setFrozenRows(1);
+}
+
+function parseJsonSafe_(text, fallback) {
+  try { return JSON.parse(String(text || '')); } catch (err) { return fallback; }
+}
+
+function toBool_(value) {
+  return value === true || String(value).toLowerCase() === 'true' || String(value) === '1';
+}
+
 function validateParticipant_(data) {
   const required = ['submissionId', 'name', 'school', 'country', 'position', 'participationStart', 'participationEnd'];
   const missing = required.filter(function(key) { return !String(data[key] || '').trim(); });
@@ -351,34 +586,34 @@ function certificateHtml_(name, school, period) {
   @page { size: A4 portrait; margin: 0; }
   html, body { margin:0; padding:0; width:210mm; height:297mm; background:#fff; }
   body { font-family:"Segoe UI","Noto Sans",Arial,sans-serif; color:#102033; }
-  .page { position:relative; width:210mm; height:297mm; overflow:hidden; color:#102033; background:radial-gradient(circle at 18% 16%,rgba(15,143,167,.07),transparent 34%),linear-gradient(180deg,#fff 0%,#f8fbff 100%); }
-  .page:before { content:""; position:absolute; inset:12mm; border:.7mm solid rgba(18,40,74,.80); border-radius:1.5mm; box-sizing:border-box; }
-  .page:after { content:""; position:absolute; inset:16mm; border:.32mm solid rgba(198,161,91,.78); box-sizing:border-box; }
-  .accent-top { position:absolute; top:-44mm; right:-34mm; width:134mm; height:88mm; border-radius:0 0 0 56mm; background:linear-gradient(135deg,rgba(17,136,161,.96),rgba(18,40,74,.98)); transform:rotate(-4deg); }
-  .accent-top:after { content:""; position:absolute; left:7mm; bottom:-7mm; width:108mm; height:15mm; border-radius:999px; background:rgba(198,161,91,.88); transform:rotate(-8deg); }
-  .accent-bottom { position:absolute; left:-52mm; bottom:-56mm; width:136mm; height:100mm; border-radius:0 70mm 0 0; background:linear-gradient(135deg,rgba(18,40,74,.96),rgba(18,102,154,.76)); transform:rotate(-3deg); }
+  .page { position:relative; width:210mm; height:297mm; overflow:hidden; color:#102033; background:linear-gradient(180deg,#fff 0%,#f8fbff 100%); }
+  .page:before { content:""; position:absolute; inset:12mm; border:.7mm solid rgba(16,36,63,.78); border-radius:1.4mm; box-sizing:border-box; }
+  .page:after { content:""; position:absolute; inset:16mm; border:.30mm solid rgba(197,160,87,.72); box-sizing:border-box; }
+  .accent-top { position:absolute; top:-46mm; right:-38mm; width:126mm; height:84mm; border-radius:0 0 0 55mm; background:linear-gradient(135deg,rgba(24,166,200,.95),rgba(16,36,63,.98)); transform:rotate(-4deg); }
+  .accent-top:after { content:""; position:absolute; left:14mm; bottom:-8mm; width:96mm; height:12mm; border-radius:999px; background:rgba(197,160,87,.88); transform:rotate(-8deg); }
+  .accent-bottom { position:absolute; left:-54mm; bottom:-58mm; width:132mm; height:98mm; border-radius:0 70mm 0 0; background:linear-gradient(135deg,rgba(16,36,63,.96),rgba(19,95,159,.76)); transform:rotate(-3deg); }
   .content { position:relative; z-index:1; height:100%; padding:26mm 25mm 22mm; text-align:center; box-sizing:border-box; display:flex; flex-direction:column; align-items:center; }
-  .logo-row { width:100%; text-align:left; min-height:22mm; }
-  .skysef { width:58mm; max-height:22mm; object-fit:contain; }
-  .kicker { margin:18mm 0 0; color:#12669a; text-transform:uppercase; font-size:10.5pt; letter-spacing:.13em; font-weight:800; line-height:1.35; }
-  h1 { margin:5mm 0 0; color:#12284a; line-height:1; letter-spacing:-.02em; }
-  h1 .big { display:block; font-family:"Segoe UI","Noto Sans",Arial,sans-serif; font-size:42pt; font-weight:900; letter-spacing:-.025em; }
-  h1 .small { display:block; margin-top:2mm; font-family:"Segoe UI","Noto Sans",Arial,sans-serif; font-size:15.2pt; text-transform:uppercase; letter-spacing:.28em; color:#c6a15b; font-weight:900; }
-  .awarded { margin:15mm 0 0; font-size:14.5pt; line-height:1.35; color:#516173; font-weight:500; }
-  .recipient { width:150mm; margin:6mm auto 0; padding:5mm 5mm 4.8mm; border-top:.35mm solid rgba(198,161,91,.78); border-bottom:.35mm solid rgba(198,161,91,.78); background:rgba(255,255,255,.74); }
-  .name { min-height:13mm; font-size:31pt; line-height:1.08; font-weight:900; color:#071a31; word-wrap:break-word; }
-  .school { min-height:8mm; margin-top:1.5mm; font-size:14pt; line-height:1.25; color:#33506d; font-weight:800; word-wrap:break-word; }
-  .desc { margin:11mm auto 0; width:150mm; font-size:15.4pt; line-height:1.62; color:#18314f; font-weight:500; }
-  .footer { width:150mm; margin-top:auto; padding-bottom:4mm; display:flex; justify-content:flex-end; align-items:flex-end; }
-  .footer-right { width:82mm; text-align:right; display:flex; flex-direction:column; align-items:flex-end; gap:5mm; }
-  .org { display:grid; grid-template-columns:20mm 1fr; align-items:center; column-gap:3.5mm; width:82mm; }
-  .school-logo { width:19mm; height:auto; object-fit:contain; justify-self:end; }
-  .org-name { font-size:9.8pt; line-height:1.25; letter-spacing:.04em; text-transform:uppercase; font-weight:800; color:#18314f; }
-  .sig { position:relative; width:78mm; min-height:29mm; display:flex; flex-direction:column; align-items:center; justify-content:flex-end; padding-bottom:2mm; }
-  .sig-line { width:62mm; height:.28mm; background:rgba(16,36,63,.62); margin-bottom:3mm; }
-  .principal-name { position:relative; z-index:2; font-size:16pt; line-height:1.1; font-weight:900; color:#10243f; text-align:center; }
-  .principal-title { position:relative; z-index:2; margin-top:1mm; font-size:10.8pt; line-height:1.1; font-weight:800; color:#304b6e; text-align:center; }
-  .seal { position:absolute; z-index:3; width:22mm; height:23mm; right:3mm; bottom:2mm; object-fit:contain; opacity:.78; }
+  .logo-row { width:100%; text-align:left; min-height:24mm; }
+  .skysef { width:58mm; max-height:23mm; object-fit:contain; background:#fff; padding:1.5mm 2mm; border-radius:1.5mm; }
+  .kicker { margin:16mm 0 0; color:#135f9f; text-transform:uppercase; font-size:10.4pt; letter-spacing:.13em; font-weight:800; line-height:1.35; }
+  h1 { margin:5mm 0 0; color:#10243f; line-height:1; letter-spacing:-.02em; }
+  h1 .big { display:block; font-size:42pt; font-weight:900; letter-spacing:-.025em; }
+  h1 .small { display:block; margin-top:2mm; font-size:15.2pt; text-transform:uppercase; letter-spacing:.28em; color:#c5a057; font-weight:900; }
+  .awarded { margin:14mm 0 0; font-size:14.5pt; line-height:1.35; color:#516173; font-weight:500; }
+  .recipient { width:150mm; margin:6mm auto 0; padding:5mm 5mm 4.8mm; border-top:.35mm solid rgba(197,160,87,.72); border-bottom:.35mm solid rgba(197,160,87,.72); background:rgba(255,255,255,.82); }
+  .name { min-height:13mm; display:flex; align-items:center; justify-content:center; font-size:31pt; line-height:1.08; font-weight:900; color:#071a31; word-wrap:break-word; }
+  .school { min-height:8mm; display:flex; align-items:center; justify-content:center; margin-top:1.5mm; font-size:14pt; line-height:1.25; color:#33506d; font-weight:800; word-wrap:break-word; }
+  .desc { margin:10.5mm auto 0; width:150mm; font-size:15.2pt; line-height:1.58; color:#18314f; font-weight:500; }
+  .footer { width:150mm; margin-top:auto; padding-bottom:2mm; display:flex; justify-content:flex-end; align-items:flex-end; }
+  .footer-right { width:92mm; text-align:right; display:flex; flex-direction:column; align-items:flex-end; gap:4.2mm; }
+  .org { width:92mm; display:flex; justify-content:flex-end; align-items:center; gap:3.2mm; }
+  .school-logo { order:2; width:19mm; height:auto; object-fit:contain; flex:0 0 auto; }
+  .org-name { order:1; max-width:66mm; font-size:9.6pt; line-height:1.24; letter-spacing:.05em; text-transform:uppercase; font-weight:900; color:#18314f; }
+  .sig { position:relative; width:78mm; min-height:24mm; display:flex; flex-direction:column; align-items:flex-end; justify-content:flex-end; padding:0 8mm 1.5mm 0; }
+  .sig-line { display:none; }
+  .principal-name { position:relative; z-index:2; font-size:15.6pt; line-height:1.08; font-weight:900; color:#10243f; text-align:right; }
+  .principal-title { position:relative; z-index:2; margin-top:1mm; font-size:10.2pt; line-height:1.1; font-weight:800; color:#304b6e; text-align:right; }
+  .seal { position:absolute; z-index:3; width:21mm; height:22mm; right:0; bottom:.5mm; object-fit:contain; opacity:.76; }
 </style>
 </head>
 <body>
@@ -392,12 +627,10 @@ function certificateHtml_(name, school, period) {
       <p class="awarded">This certificate is proudly awarded to</p>
       <div class="recipient"><div class="name">${escapeHtml_(name)}</div><div class="school">${escapeHtml_(school)}</div></div>
       <p class="desc">for participating in the Shizuoka Kita Youth Science Engineering Forum 2026, held from ${escapeHtml_(period)}, hosted and organized by Shizuoka Kita Junior and Senior High School</p>
-      <div class="footer">
-        <div class="footer-right">
-          <div class="org"><img class="school-logo" src="${CONFIG.LOGO_SCHOOL_URL}"><div class="org-name">Shizuoka Kita Junior and Senior High School</div></div>
-          <div class="sig"><div class="sig-line"></div><div class="principal-name">Hisao Ohashi</div><div class="principal-title">Principal</div><img class="seal" src="${CONFIG.SEAL_URL}"></div>
-        </div>
-      </div>
+      <div class="footer"><div class="footer-right">
+        <div class="org"><img class="school-logo" src="${CONFIG.LOGO_SCHOOL_URL}"><div class="org-name">Shizuoka Kita Junior and Senior High School</div></div>
+        <div class="sig"><div class="sig-line"></div><div class="principal-name">Hisao Ohashi</div><div class="principal-title">Principal</div><img class="seal" src="${CONFIG.SEAL_URL}"></div>
+      </div></div>
     </div>
   </div>
 </body>
