@@ -618,15 +618,15 @@ function certificateHtml_(name, school, period) {
   .school { min-height:8mm; display:flex; align-items:center; justify-content:center; margin-top:1.5mm; font-size:14pt; line-height:1.25; color:#33506d; font-weight:800; word-wrap:break-word; }
   .desc { margin:10.5mm auto 0; width:150mm; font-size:15.2pt; line-height:1.58; color:#18314f; font-weight:500; text-align:left; }
   .footer { width:150mm; margin-top:auto; padding-bottom:3mm; display:flex; justify-content:flex-end; align-items:flex-end; }
-  .footer-right { width:92mm; margin-left:auto; text-align:right; display:flex; flex-direction:column; justify-content:flex-end; align-items:flex-end; gap:2.2mm; }
-  .org { width:92mm; display:flex; justify-content:flex-end; align-items:center; gap:3.2mm; }
-  .school-logo { width:16mm; height:auto; object-fit:contain; flex:0 0 auto; }
-  .org-name { width:68mm; font-size:13.8pt; line-height:1.16; letter-spacing:.005em; font-weight:900; color:#18314f; text-align:left; white-space:nowrap; }
-  .sig { position:relative; width:68mm; min-height:18mm; display:flex; flex-direction:column; align-items:flex-end; justify-content:center; padding:0; border:0 !important; transform:translateY(-2px); text-align:right; }
+  .footer-right { width:104mm; margin-left:auto; text-align:right; display:flex; flex-direction:column; justify-content:flex-end; align-items:flex-end; gap:1.9mm; }
+  .org { width:104mm; display:flex; justify-content:flex-end; align-items:center; gap:2.4mm; }
+  .school-logo { width:14.5mm; height:auto; object-fit:contain; flex:0 0 auto; transform:translateX(-2.5mm); }
+  .org-name { width:82mm; font-size:13.6pt; line-height:1.14; letter-spacing:.003em; font-weight:900; color:#18314f; text-align:left; white-space:nowrap; }
+  .sig { position:relative; width:82mm; min-height:17mm; display:flex; flex-direction:column; align-items:flex-end; justify-content:center; padding:0; border:0 !important; transform:translateY(-2px); text-align:right; }
   .sig:before, .sig:after { content:none !important; display:none !important; }
-  .principal-name { position:relative; z-index:2; width:50mm; font-size:13.8pt; line-height:1.05; font-weight:900; color:#10243f; text-align:right; white-space:nowrap; padding-right:5mm; }
-  .principal-title { position:relative; z-index:2; width:50mm; margin-top:.8mm; font-size:11.7pt; line-height:1.05; font-weight:800; color:#304b6e; text-align:right; padding-right:5mm; }
-  .seal { position:absolute; z-index:3; width:20mm; height:21mm; right:0; top:-1.8mm; object-fit:contain; opacity:.72; }
+  .principal-name { position:relative; z-index:2; width:58mm; font-size:13.8pt; line-height:1.05; font-weight:900; color:#10243f; text-align:right; white-space:nowrap; padding-right:7.5mm; }
+  .principal-title { position:relative; z-index:2; width:58mm; margin-top:.8mm; font-size:11.7pt; line-height:1.05; font-weight:800; color:#304b6e; text-align:right; padding-right:7.5mm; }
+  .seal { position:absolute; z-index:3; width:20mm; height:21mm; right:0; top:-1.4mm; object-fit:contain; opacity:.72; }
 </style>
 </head>
 <body>
