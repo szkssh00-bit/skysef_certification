@@ -210,29 +210,29 @@
   flex-direction: column;
   align-items: flex-end;
   justify-content: flex-end;
-  gap: 1.6mm;
+  gap: 1.2mm;
 }
 
 .organizer-block {
   width: 82mm;
-  display: grid;
-  grid-template-columns: 17mm 58mm;
-  column-gap: 3mm;
-  justify-content: end;
+  display: flex;
+  justify-content: flex-end;
   align-items: center;
+  gap: 3mm;
 }
 
 .logo-school {
   width: 17mm;
   height: auto;
   object-fit: contain;
+  flex: 0 0 auto;
 }
 
 .organizer-name {
   width: 58mm;
-  font-size: 13.8pt;
+  font-size: 13.9pt;
   line-height: 1.12;
-  letter-spacing: .015em;
+  letter-spacing: .01em;
   font-weight: 900;
   color: #18314f;
   text-align: left;
@@ -246,11 +246,11 @@
   transform: translateY(-4px);
   display: flex;
   flex-direction: column;
-  align-items: flex-start;
+  align-items: flex-end;
   justify-content: center;
-  padding: 0 20mm 0 0;
+  padding: 0 21mm 0 0;
   border: 0 !important;
-  text-align: left;
+  text-align: right;
 }
 
 .signature-block::before,
@@ -263,11 +263,11 @@
   position: relative;
   z-index: 2;
   width: 38mm;
-  font-size: 13.8pt;
+  font-size: 13.9pt;
   line-height: 1.05;
   font-weight: 900;
   color: #10243f;
-  text-align: left;
+  text-align: right;
   white-space: nowrap;
 }
 
@@ -280,7 +280,7 @@
   line-height: 1.05;
   font-weight: 800;
   color: #304b6e;
-  text-align: left;
+  text-align: right;
 }
 
 .seal {
@@ -291,7 +291,7 @@
   right: 0;
   top: -1.5mm;
   object-fit: contain;
-  opacity: .78;
+  opacity: .80;
 }
 
 .pdf-render-host .certificate-page,

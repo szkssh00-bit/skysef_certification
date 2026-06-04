@@ -1,5 +1,5 @@
 /* SKYSEF questionnaire -> background certificate PDF -> final record. */
-const SURVEY_ENDPOINT = "https://script.google.com/macros/s/AKfycbxaJY0q9fZqQdOU-O2TY9G579Za-KCgaCZo4JOun65l5feOXHlshGspJ8xhyykW1g0/exec";
+const SURVEY_ENDPOINT = "https://script.google.com/macros/s/AKfycbybQU3i9CVrA40ZaEfz4eDmJxkMfpt87frvtdF-OxmGyLk-5jNpEWDuJKq0ENq9kJt6/exec";
 const ADMIN_PASSWORD_CLIENT = "set";
 let remoteConfigLoaded = false;
 
@@ -118,8 +118,23 @@ function setStatus(id, message, type = "") {
   el.className = `submit-status ${type}`.trim();
   el.textContent = message || "";
 }
-function selectedDateLabel(value) { return (EVENT_DATES.find((d) => d.value === value) || EVENT_DATES[0]).label; }
-function selectedDateShort(value) { return (EVENT_DATES.find((d) => d.value === value) || EVENT_DATES[0]).short; }
+function selectedDateLabel(value) {
+  const found = EVENT_DATES.find((d) => d.value === value);
+  return found ? found.label : fallbackDateParts(value).label;
+}
+function selectedDateShort(value) {
+  const found = EVENT_DATES.find((d) => d.value === value);
+  return found ? found.short : fallbackDateParts(value).short;
+}
+function normalizeDateKey(value) {
+  const text = String(value || "").trim();
+  const iso = text.match(/\d{4}-\d{2}-\d{2}/);
+  if (iso) return iso[0];
+  const lower = text.toLowerCase();
+  const byShort = EVENT_DATES.find((d) => String(d.short || "").toLowerCase() === lower || String(d.label || "").toLowerCase() === lower);
+  return byShort ? byShort.value : text;
+}
+function isValidIsoDate(value) { return /^\d{4}-\d{2}-\d{2}$/.test(String(value || "")); }
 function todayIsoLocal() {
   const now = new Date();
   const y = now.getFullYear();
@@ -247,27 +262,36 @@ function renderSelectOptions() {
   $("participationStart").value = selectableDates[0].value;
   $("participationEnd").value = selectableDates[selectableDates.length - 1].value;
 }
-function normalizeTimelineRow(row) {
-  if (Array.isArray(row)) return [row[0] || "", row[1] || "", row[2] || ""];
-  if (row && typeof row === "object") return [row.time || "", row.program || row.content || "", row.venue || ""];
+function normalizeTimelineRow(row, targetDate = "") {
+  if (Array.isArray(row)) {
+    if (row.length >= 4) {
+      const rowDate = normalizeDateKey(row[0]);
+      if (targetDate && rowDate && rowDate !== targetDate) return null;
+      return [row[1] || "", row[2] || "", row[3] || ""];
+    }
+    return [row[0] || "", row[1] || "", row[2] || ""];
+  }
+  if (row && typeof row === "object") {
+    const rowDate = normalizeDateKey(row.date || row.day || "");
+    if (targetDate && rowDate && rowDate !== targetDate) return null;
+    return [row.time || "", row.program || row.content || "", row.venue || ""];
+  }
   return ["", String(row || ""), ""];
 }
 function timelineRowsForDate(dateValue) {
-  const rows = Array.isArray(TIMELINE[dateValue]) ? TIMELINE[dateValue] : [];
-  if (rows.length) return rows.map(normalizeTimelineRow).filter((r) => r.some(Boolean));
-  const fallback = Array.isArray(DEFAULT_TIMELINE[dateValue]) ? DEFAULT_TIMELINE[dateValue] : [];
-  return fallback.map(normalizeTimelineRow).filter((r) => r.some(Boolean));
+  const target = normalizeDateKey(dateValue);
+  let rows = Array.isArray(TIMELINE[target]) ? TIMELINE[target] : [];
+  rows = rows.map((row) => normalizeTimelineRow(row, target)).filter((r) => r && r.some(Boolean));
+  if (rows.length) return rows;
+  const fallback = Array.isArray(DEFAULT_TIMELINE[target]) ? DEFAULT_TIMELINE[target] : [];
+  return fallback.map((row) => normalizeTimelineRow(row, target)).filter((r) => r && r.some(Boolean));
 }
 function renderTimeline(dateValue = "2026-08-02") {
   const panel = $("timelinePanel");
-  let rows = timelineRowsForDate(dateValue);
-  if (!rows.length) {
-    rows = Object.keys(DEFAULT_TIMELINE).flatMap((date) => timelineRowsForDate(date).map((row) => [selectedDateShort(date), ...row]));
-    panel.innerHTML = `<table><thead><tr><th>Date</th><th>Time</th><th>Program</th><th>Venue</th></tr></thead><tbody>${rows.map((row) => `<tr><td>${row[0]}</td><td>${row[1]}</td><td>${row[2]}</td><td>${row[3]}</td></tr>`).join("")}</tbody></table>`;
-  } else {
-    panel.innerHTML = `<table><thead><tr><th>Time</th><th>Program</th><th>Venue</th></tr></thead><tbody>${rows.map((row) => `<tr><td>${row[0]}</td><td>${row[1]}</td><td>${row[2]}</td></tr>`).join("")}</tbody></table>`;
-  }
-  document.querySelectorAll(".timeline-tab").forEach((button) => button.classList.toggle("is-active", button.dataset.date === dateValue));
+  const target = normalizeDateKey(dateValue) || "2026-08-02";
+  const rows = timelineRowsForDate(target);
+  panel.innerHTML = `<table><thead><tr><th>Time</th><th>Program</th><th>Venue</th></tr></thead><tbody>${rows.map((row) => `<tr><td>${row[0]}</td><td>${row[1]}</td><td>${row[2]}</td></tr>`).join("")}</tbody></table>`;
+  document.querySelectorAll(".timeline-tab").forEach((button) => button.classList.toggle("is-active", normalizeDateKey(button.dataset.date) === target));
 }
 function renderTimelineTabs() {
   const tabs = $("timelineTabs");
@@ -715,14 +739,33 @@ async function loadRemoteConfig() {
     console.warn("Remote config could not be loaded. Using bundled defaults.", error);
   }
 }
+
+function normalizeRemoteTimeline(timeline) {
+  const normalized = {};
+  if (!timeline || typeof timeline !== "object") return normalized;
+  Object.keys(timeline).forEach((key) => {
+    const dateKey = normalizeDateKey(key);
+    if (!isValidIsoDate(dateKey)) return;
+    const rows = Array.isArray(timeline[key]) ? timeline[key] : [];
+    const cleaned = rows.map((row) => normalizeTimelineRow(row, dateKey)).filter((r) => r && r.some(Boolean));
+    if (cleaned.length) normalized[dateKey] = cleaned;
+  });
+  return normalized;
+}
+function isValidEventDates(list) {
+  return Array.isArray(list) && list.length && list.every((d) => isValidIsoDate(d.value));
+}
 function applyRemoteConfig(config) {
   if (!config || typeof config !== "object") return;
   if (Array.isArray(config.schools) && config.schools.length) SCHOOLS = config.schools;
   if (Array.isArray(config.countries) && config.countries.length) COUNTRIES = config.countries;
-  if (Array.isArray(config.eventDates) && config.eventDates.length) EVENT_DATES = config.eventDates.map(normalizeEventDateItem);
+  if (Array.isArray(config.eventDates) && config.eventDates.length) {
+    const normalizedDates = config.eventDates.map(normalizeEventDateItem);
+    if (isValidEventDates(normalizedDates)) EVENT_DATES = normalizedDates;
+  }
   if (config.timeline && typeof config.timeline === "object") {
-    const hasRows = Object.keys(config.timeline).some((key) => Array.isArray(config.timeline[key]) && config.timeline[key].length);
-    if (hasRows) TIMELINE = config.timeline;
+    const normalizedTimeline = normalizeRemoteTimeline(config.timeline);
+    if (Object.keys(normalizedTimeline).length) TIMELINE = normalizedTimeline;
   }
   if (Array.isArray(config.programQuestions) && config.programQuestions.length) PROGRAM_QUESTIONS = config.programQuestions;
   if (Array.isArray(config.itemExtraOptions) && config.itemExtraOptions.length) ITEM_EXTRA_OPTIONS = config.itemExtraOptions;

@@ -330,6 +330,18 @@ function validateAdmin_(data) {
   }
 }
 
+function normalizeDateValue_(value) {
+  if (Object.prototype.toString.call(value) === '[object Date]' && !isNaN(value.getTime())) {
+    return Utilities.formatDate(value, Session.getScriptTimeZone() || 'Asia/Tokyo', 'yyyy-MM-dd');
+  }
+  const text = String(value || '').trim();
+  const iso = text.match(/\d{4}-\d{2}-\d{2}/);
+  return iso ? iso[0] : text;
+}
+function isIsoDate_(value) {
+  return /^\d{4}-\d{2}-\d{2}$/.test(String(value || ''));
+}
+
 function getConfig_() {
   const ss = SpreadsheetApp.openById(CONFIG.SPREADSHEET_ID);
   ensureConfigSheets_(ss);
@@ -339,13 +351,14 @@ function getConfig_() {
   }).filter(function (x) { return x.school; });
 
   const eventDates = readRows_(ss, 'Config_EventDates').map(function (r) {
-    return { value: r[0], label: r[1] || r[0], short: r[2] || r[1] || r[0] };
-  }).filter(function (x) { return x.value; });
+    const value = normalizeDateValue_(r[0]);
+    return { value: value, label: r[1] || value, short: r[2] || r[1] || value };
+  }).filter(function (x) { return isIsoDate_(x.value); });
 
   const timeline = {};
   readRows_(ss, 'Config_Timeline').forEach(function (r) {
-    const date = r[0];
-    if (!date) return;
+    const date = normalizeDateValue_(r[0]);
+    if (!isIsoDate_(date)) return;
     if (!timeline[date]) timeline[date] = [];
     timeline[date].push([r[1] || '', r[2] || '', r[3] || '']);
   });
@@ -605,15 +618,15 @@ function certificateHtml_(name, school, period) {
   .school { min-height:8mm; display:flex; align-items:center; justify-content:center; margin-top:1.5mm; font-size:14pt; line-height:1.25; color:#33506d; font-weight:800; word-wrap:break-word; }
   .desc { margin:10.5mm auto 0; width:150mm; font-size:15.2pt; line-height:1.58; color:#18314f; font-weight:500; text-align:left; }
   .footer { width:150mm; margin-top:auto; padding-bottom:3mm; display:flex; justify-content:flex-end; align-items:flex-end; }
-  .footer-right { width:82mm; margin-left:auto; text-align:right; display:flex; flex-direction:column; justify-content:flex-end; align-items:flex-end; gap:1.6mm; }
-  .org { width:82mm; display:grid; grid-template-columns:17mm 58mm; column-gap:3mm; justify-content:end; align-items:center; }
-  .school-logo { width:17mm; height:auto; object-fit:contain; }
-  .org-name { width:58mm; font-size:13.8pt; line-height:1.12; letter-spacing:.015em; font-weight:900; color:#18314f; text-align:left; }
-  .sig { position:relative; width:58mm; min-height:17mm; display:flex; flex-direction:column; align-items:flex-start; justify-content:center; padding:0 20mm 0 0; border:0 !important; transform:translateY(-4px); text-align:left; }
+  .footer-right { width:82mm; margin-left:auto; text-align:right; display:flex; flex-direction:column; justify-content:flex-end; align-items:flex-end; gap:1.2mm; }
+  .org { width:82mm; display:flex; justify-content:flex-end; align-items:center; gap:3mm; }
+  .school-logo { width:17mm; height:auto; object-fit:contain; flex:0 0 auto; }
+  .org-name { width:58mm; font-size:13.9pt; line-height:1.12; letter-spacing:.01em; font-weight:900; color:#18314f; text-align:left; }
+  .sig { position:relative; width:58mm; min-height:17mm; display:flex; flex-direction:column; align-items:flex-end; justify-content:center; padding:0 21mm 0 0; border:0 !important; transform:translateY(-4px); text-align:right; }
   .sig:before, .sig:after { content:none !important; display:none !important; }
-  .principal-name { position:relative; z-index:2; width:38mm; font-size:13.8pt; line-height:1.05; font-weight:900; color:#10243f; text-align:left; white-space:nowrap; }
-  .principal-title { position:relative; z-index:2; width:38mm; margin-top:.8mm; font-size:11.8pt; line-height:1.05; font-weight:800; color:#304b6e; text-align:left; }
-  .seal { position:absolute; z-index:3; width:20mm; height:21mm; right:0; top:-1.5mm; object-fit:contain; opacity:.78; }
+  .principal-name { position:relative; z-index:2; width:38mm; font-size:13.9pt; line-height:1.05; font-weight:900; color:#10243f; text-align:right; white-space:nowrap; }
+  .principal-title { position:relative; z-index:2; width:38mm; margin-top:.8mm; font-size:11.8pt; line-height:1.05; font-weight:800; color:#304b6e; text-align:right; }
+  .seal { position:absolute; z-index:3; width:20mm; height:21mm; right:0; top:-1.5mm; object-fit:contain; opacity:.80; }
 </style>
 </head>
 <body>
