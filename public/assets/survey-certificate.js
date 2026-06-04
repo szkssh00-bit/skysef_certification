@@ -1,5 +1,5 @@
 /* SKYSEF questionnaire -> background certificate PDF -> final record. */
-const SURVEY_ENDPOINT = "https://script.google.com/macros/s/AKfycbwNWhUWVNmUulPUKhujkhkGZsABztCY1dWLMteyWC_eNUd0Cc_Rx3rrnAS3Q5QoMGkG/exec";
+const SURVEY_ENDPOINT = "https://script.google.com/macros/s/AKfycbyYzMkcZiNBZ8sP_OugFjFRmqz-mv_ggb1h_a-MbGkX7PoLU6mnyUxQj-dopkJHyxhL/exec";
 const ADMIN_PASSWORD_CLIENT = "set";
 let remoteConfigLoaded = false;
 
@@ -714,28 +714,56 @@ function collectAdminConfig() {
     itemExtraOptions: linesToOptions($("adminItemOptions").value)
   };
 }
+let adminUnlocked = false;
+
 async function openAdminEditor(password) {
   if (password !== ADMIN_PASSWORD_CLIENT) {
     setStatus("adminLoginStatus", "Incorrect password.", "error");
-    return;
+    return false;
   }
-  setStatus("adminLoginStatus", "Loading admin data...", "ok");
+  adminUnlocked = true;
+  $("adminPassword").value = password;
+  $("adminLoginForm").hidden = true;
+  $("adminEditorForm").hidden = false;
+  setStatus("adminSaveStatus", "Loading admin data...", "ok");
   try {
     const json = await postWithRetry({ mode: "getConfig", adminPassword: password }, 2);
     const config = json.config || {};
     applyRemoteConfig(config);
     fillAdminEditor(config);
-    $("adminEditorForm").hidden = false;
-    setStatus("adminLoginStatus", "Admin editor opened.", "ok");
+    rebuildInteractiveContent();
+    setStatus("adminSaveStatus", "Admin editor opened.", "ok");
   } catch (error) {
     fillAdminEditor();
-    $("adminEditorForm").hidden = false;
-    setStatus("adminLoginStatus", `Admin editor opened with bundled data. ${error.message}`, "error");
+    setStatus("adminSaveStatus", `Admin editor opened with bundled data. ${error.message}`, "error");
   }
+  return true;
 }
 async function handleAdminLogin(event) {
   event.preventDefault();
   await openAdminEditor($("adminPassword").value);
+}
+
+async function requestAdminAccess() {
+  if (adminUnlocked) {
+    showView("adminView");
+    history.replaceState(null, "", "#admin");
+    return true;
+  }
+  const password = window.prompt("Admin password");
+  if (password === null) {
+    history.replaceState(null, "", location.pathname + location.search);
+    return false;
+  }
+  if (password !== ADMIN_PASSWORD_CLIENT) {
+    window.alert("Incorrect password.");
+    history.replaceState(null, "", location.pathname + location.search);
+    return false;
+  }
+  showView("adminView");
+  history.replaceState(null, "", "#admin");
+  await openAdminEditor(password);
+  return true;
 }
 async function handleAdminSave(event) {
   event.preventDefault();
@@ -778,12 +806,10 @@ async function handleAdminReload() {
 }
 
 function showAdminView() {
-  showView("adminView");
-  history.replaceState(null, "", "#admin");
-  fillAdminEditor();
+  requestAdminAccess();
 }
 function routeByHash() {
-  if (location.hash === "#admin") showAdminView();
+  if (location.hash === "#admin") requestAdminAccess();
 }
 async function init() {
   renderSelectOptions();
@@ -802,16 +828,16 @@ async function init() {
   $("backToQuestionnaireButton").addEventListener("click", showQuestionnaireView);
   $("participantForm").addEventListener("submit", handleNext);
   $("surveyForm").addEventListener("submit", handleSubmit);
-  $("adminNavLink").addEventListener("click", (event) => { event.preventDefault(); showAdminView(); });
+  $("adminNavLink").addEventListener("click", (event) => { event.preventDefault(); requestAdminAccess(); });
   $("adminLoginForm").addEventListener("submit", handleAdminLogin);
   $("adminEditorForm").addEventListener("submit", handleAdminSave);
   $("adminReloadButton").addEventListener("click", handleAdminReload);
   window.addEventListener("hashchange", routeByHash);
-  if (location.hash === "#admin") showAdminView(); else showView("participantView");
+  if (location.hash === "#admin") requestAdminAccess(); else showView("participantView");
   loadRemoteConfig().then(() => {
     rebuildInteractiveContent();
-    if (location.hash === "#admin") fillAdminEditor();
+    if (location.hash === "#admin" && adminUnlocked) fillAdminEditor();
   }).catch((error) => console.warn("Remote config load failed.", error));
 }
-window.SKYSEFShowAdmin = showAdminView;
+window.SKYSEFShowAdmin = requestAdminAccess;
 document.addEventListener("DOMContentLoaded", init);

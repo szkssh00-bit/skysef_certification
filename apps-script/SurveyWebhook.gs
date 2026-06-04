@@ -593,8 +593,8 @@ function certificateHtml_(name, school, period) {
   .accent-top:after { content:""; position:absolute; left:14mm; bottom:-8mm; width:96mm; height:12mm; border-radius:999px; background:rgba(197,160,87,.88); transform:rotate(-8deg); }
   .accent-bottom { position:absolute; left:-54mm; bottom:-58mm; width:132mm; height:98mm; border-radius:0 70mm 0 0; background:linear-gradient(135deg,rgba(16,36,63,.96),rgba(19,95,159,.76)); transform:rotate(-3deg); }
   .content { position:relative; z-index:1; height:100%; padding:26mm 25mm 22mm; text-align:center; box-sizing:border-box; display:flex; flex-direction:column; align-items:center; }
-  .logo-row { width:100%; text-align:left; min-height:25mm; background:#fff; }
-  .skysef { width:66mm; max-height:24mm; object-fit:contain; background:#fff; padding:0; border-radius:0; }
+  .logo-row { width:100%; text-align:left; min-height:24mm; background:transparent; }
+  .skysef { width:64mm; max-height:23mm; object-fit:contain; background:#fff; padding:1.4mm 2.2mm 1.2mm 0; border-radius:1mm; }
   .kicker { margin:16mm 0 0; color:#135f9f; text-transform:uppercase; font-size:10.4pt; letter-spacing:.13em; font-weight:800; line-height:1.35; }
   h1 { margin:5mm 0 0; color:#10243f; line-height:1; letter-spacing:-.02em; }
   h1 .big { display:block; font-size:42pt; font-weight:900; letter-spacing:-.025em; }
@@ -604,16 +604,16 @@ function certificateHtml_(name, school, period) {
   .name { min-height:13mm; display:flex; align-items:center; justify-content:center; font-size:31pt; line-height:1.08; font-weight:900; color:#071a31; word-wrap:break-word; }
   .school { min-height:8mm; display:flex; align-items:center; justify-content:center; margin-top:1.5mm; font-size:14pt; line-height:1.25; color:#33506d; font-weight:800; word-wrap:break-word; }
   .desc { margin:10.5mm auto 0; width:150mm; font-size:15.2pt; line-height:1.58; color:#18314f; font-weight:500; }
-  .footer { width:150mm; margin-top:auto; padding-bottom:1mm; display:flex; justify-content:flex-end; align-items:flex-end; }
-  .footer-right { width:100mm; margin-left:auto; text-align:right; display:flex; flex-direction:column; align-items:flex-end; gap:3.2mm; }
-  .org { width:100mm; display:flex; justify-content:flex-end; align-items:center; gap:3.5mm; }
-  .school-logo { order:1; width:21mm; height:auto; object-fit:contain; flex:0 0 auto; }
-  .org-name { order:2; max-width:74mm; font-size:13.2pt; line-height:1.12; letter-spacing:.045em; text-transform:uppercase; font-weight:900; color:#18314f; text-align:right; }
-  .sig { position:relative; width:100mm; min-height:25mm; display:flex; flex-direction:column; align-items:flex-end; justify-content:center; padding:0 25mm 1.5mm 0; }
-  
-  .principal-name { position:relative; z-index:2; font-size:13.2pt; line-height:1.08; font-weight:900; color:#10243f; text-align:right; }
-  .principal-title { position:relative; z-index:2; margin-top:1mm; font-size:10.2pt; line-height:1.1; font-weight:800; color:#304b6e; text-align:right; }
-  .seal { position:absolute; z-index:3; width:22mm; height:23mm; right:0; bottom:1.8mm; object-fit:contain; opacity:.78; }
+  .footer { width:150mm; margin-top:auto; padding-bottom:2mm; display:flex; justify-content:flex-end; align-items:flex-end; }
+  .footer-right { width:120mm; margin-left:auto; text-align:right; display:flex; flex-direction:row; justify-content:flex-end; align-items:flex-end; gap:7mm; }
+  .org { width:58mm; display:flex; justify-content:flex-end; align-items:center; gap:3mm; }
+  .school-logo { width:18mm; height:auto; object-fit:contain; flex:0 0 auto; }
+  .org-name { max-width:36mm; font-size:13.2pt; line-height:1.06; letter-spacing:.018em; text-transform:uppercase; font-weight:900; color:#18314f; text-align:right; }
+  .sig { position:relative; width:44mm; min-height:23mm; display:flex; flex-direction:column; align-items:flex-end; justify-content:flex-end; padding:0 18mm 4.2mm 0; border:0 !important; }
+  .sig:before, .sig:after { content:none !important; display:none !important; }
+  .principal-name { position:relative; z-index:2; font-size:13.2pt; line-height:1.05; font-weight:900; color:#10243f; text-align:right; white-space:nowrap; }
+  .principal-title { position:relative; z-index:2; margin-top:.8mm; font-size:11pt; line-height:1.05; font-weight:800; color:#304b6e; text-align:right; }
+  .seal { position:absolute; z-index:3; width:20mm; height:21mm; right:0; bottom:1mm; object-fit:contain; opacity:.76; }
 </style>
 </head>
 <body>

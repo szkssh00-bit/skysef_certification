@@ -1,9 +1,9 @@
-# PowerShell update command for skysef_certification_complete_v17.zip
+# PowerShell update command for skysef_certification_complete_v19.zip
 
 ```powershell
-$ZipPath = "C:\Users\SSH2026\Downloads\skysef_certification_complete_v17.zip"
+$ZipPath = "C:\Users\SSH2026\Downloads\skysef_certification_complete_v19.zip"
 $RepoPath = "C:\Users\SSH2026\Downloads\skysef_certification"
-$TempPath = "C:\Users\SSH2026\Downloads\skysef_certification_complete_v17_temp"
+$TempPath = "C:\Users\SSH2026\Downloads\skysef_certification_complete_v19_temp"
 $RepoUrl = "https://github.com/szkssh00-bit/skysef_certification.git"
 
 if (!(Test-Path $ZipPath)) {
@@ -43,6 +43,6 @@ New-Item -ItemType Directory -Force -Path ".github\workflows" | Out-Null
 Copy-Item -Path "$($SourceRoot.FullName)\.github\workflows\pages.yml" -Destination ".\.github\workflows\pages.yml" -Force
 
 git add .
-git commit -m "Fix admin navigation and certificate footer layout v17"
+git commit -m "Fix admin navigation and certificate footer layout v19"
 git push
 ```

@@ -93,17 +93,17 @@
   display: flex;
   justify-content: flex-start;
   align-items: flex-start;
-  min-height: 25mm;
-  background: #ffffff;
+  min-height: 24mm;
+  background: transparent;
 }
 
 .logo-skysef {
-  width: 66mm;
-  max-height: 24mm;
+  width: 64mm;
+  max-height: 23mm;
   object-fit: contain;
   background: #ffffff;
-  padding: 0;
-  border-radius: 0;
+  padding: 1.4mm 2.2mm 1.2mm 0;
+  border-radius: 1mm;
 }
 
 .cert-kicker {
@@ -197,41 +197,40 @@
   display: flex;
   justify-content: flex-end;
   align-items: flex-end;
-  padding-bottom: 1mm;
+  padding-bottom: 2mm;
 }
 
 .footer-right {
-  width: 100mm;
+  width: 120mm;
   margin-left: auto;
   text-align: right;
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
+  justify-content: flex-end;
   align-items: flex-end;
-  gap: 3.2mm;
+  gap: 7mm;
 }
 
 .organizer-block {
-  width: 100mm;
+  width: 58mm;
   display: flex;
   justify-content: flex-end;
   align-items: center;
-  gap: 3.5mm;
+  gap: 3mm;
 }
 
 .logo-school {
-  order: 1;
-  width: 21mm;
+  width: 18mm;
   height: auto;
   object-fit: contain;
   flex: 0 0 auto;
 }
 
 .organizer-name {
-  order: 2;
-  max-width: 74mm;
+  max-width: 36mm;
   font-size: 13.2pt;
-  line-height: 1.12;
-  letter-spacing: .045em;
+  line-height: 1.06;
+  letter-spacing: .018em;
   text-transform: uppercase;
   font-weight: 900;
   color: #18314f;
@@ -240,32 +239,39 @@
 
 .signature-block {
   position: relative;
-  width: 100mm;
-  min-height: 25mm;
+  width: 44mm;
+  min-height: 23mm;
   display: flex;
   flex-direction: column;
   align-items: flex-end;
-  justify-content: center;
-  padding: 0 25mm 1.5mm 0;
+  justify-content: flex-end;
+  padding: 0 18mm 4.2mm 0;
+  border: 0 !important;
 }
 
+.signature-block::before,
+.signature-block::after {
+  content: none !important;
+  display: none !important;
+}
 
 .principal-name {
   position: relative;
   z-index: 2;
   font-size: 13.2pt;
-  line-height: 1.08;
+  line-height: 1.05;
   font-weight: 900;
   color: #10243f;
   text-align: right;
+  white-space: nowrap;
 }
 
 .principal-title {
   position: relative;
   z-index: 2;
   margin-top: .8mm;
-  font-size: 10.4pt;
-  line-height: 1.1;
+  font-size: 11pt;
+  line-height: 1.05;
   font-weight: 800;
   color: #304b6e;
   text-align: right;
@@ -274,12 +280,12 @@
 .seal {
   position: absolute;
   z-index: 3;
-  width: 22mm;
-  height: 23mm;
+  width: 20mm;
+  height: 21mm;
   right: 0;
-  bottom: 1.8mm;
+  bottom: 1mm;
   object-fit: contain;
-  opacity: .78;
+  opacity: .76;
 }
 
 .pdf-render-host .certificate-page,
