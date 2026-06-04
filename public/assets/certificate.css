@@ -203,52 +203,53 @@
 }
 
 .footer-right {
-  width: 82mm;
+  width: 92mm;
   margin-left: auto;
   text-align: right;
   display: flex;
   flex-direction: column;
   align-items: flex-end;
   justify-content: flex-end;
-  gap: 1.2mm;
+  gap: 2.2mm;
 }
 
 .organizer-block {
-  width: 82mm;
+  width: 92mm;
   display: flex;
   justify-content: flex-end;
   align-items: center;
-  gap: 3mm;
+  gap: 3.2mm;
 }
 
 .logo-school {
-  width: 17mm;
+  width: 16mm;
   height: auto;
   object-fit: contain;
   flex: 0 0 auto;
 }
 
 .organizer-name {
-  width: 58mm;
-  font-size: 13.9pt;
-  line-height: 1.12;
-  letter-spacing: .01em;
+  width: 68mm;
+  font-size: 13.8pt;
+  line-height: 1.16;
+  letter-spacing: .005em;
   font-weight: 900;
   color: #18314f;
   text-align: left;
+  white-space: nowrap;
 }
 
 .signature-block {
   position: relative;
-  width: 58mm;
-  min-height: 17mm;
+  width: 68mm;
+  min-height: 18mm;
   margin-right: 0;
-  transform: translateY(-4px);
+  transform: translateY(-2px);
   display: flex;
   flex-direction: column;
   align-items: flex-end;
   justify-content: center;
-  padding: 0 21mm 0 0;
+  padding: 0;
   border: 0 !important;
   text-align: right;
 }
@@ -262,25 +263,27 @@
 .principal-name {
   position: relative;
   z-index: 2;
-  width: 38mm;
-  font-size: 13.9pt;
+  width: 50mm;
+  font-size: 13.8pt;
   line-height: 1.05;
   font-weight: 900;
   color: #10243f;
   text-align: right;
   white-space: nowrap;
+  padding-right: 5mm;
 }
 
 .principal-title {
   position: relative;
   z-index: 2;
-  width: 38mm;
+  width: 50mm;
   margin-top: .8mm;
-  font-size: 11.8pt;
+  font-size: 11.7pt;
   line-height: 1.05;
   font-weight: 800;
   color: #304b6e;
   text-align: right;
+  padding-right: 5mm;
 }
 
 .seal {
@@ -289,9 +292,9 @@
   width: 20mm;
   height: 21mm;
   right: 0;
-  top: -1.5mm;
+  top: -1.8mm;
   object-fit: contain;
-  opacity: .80;
+  opacity: .72;
 }
 
 .pdf-render-host .certificate-page,
