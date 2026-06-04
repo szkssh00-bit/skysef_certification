@@ -597,17 +597,17 @@ function certificateHtml_(name, school, period) {
   .skysef { width:58mm; max-height:20mm; object-fit:contain; background:transparent; padding:0; border-radius:0; }
   .kicker { margin:16mm 0 0; color:#135f9f; text-transform:uppercase; font-size:10.4pt; letter-spacing:.13em; font-weight:800; line-height:1.35; }
   h1 { margin:5mm 0 0; color:#10243f; line-height:1; letter-spacing:-.02em; }
-  h1 .big { display:block; font-size:42pt; font-weight:900; letter-spacing:.045em; }
+  h1 .big { display:block; font-size:42pt; font-weight:900; letter-spacing:.060em; }
   h1 .small { display:block; margin-top:2mm; font-size:15.2pt; text-transform:uppercase; letter-spacing:.28em; color:#c5a057; font-weight:900; }
   .awarded { margin:14mm 0 0; font-size:14.5pt; line-height:1.35; color:#516173; font-weight:500; }
   .recipient { width:150mm; margin:6mm auto 0; padding:5mm 5mm 4.8mm; border-top:.35mm solid rgba(197,160,87,.72); border-bottom:.35mm solid rgba(197,160,87,.72); background:rgba(255,255,255,.82); }
   .name { min-height:13mm; display:flex; align-items:center; justify-content:center; font-size:31pt; line-height:1.08; font-weight:900; color:#071a31; word-wrap:break-word; }
   .school { min-height:8mm; display:flex; align-items:center; justify-content:center; margin-top:1.5mm; font-size:14pt; line-height:1.25; color:#33506d; font-weight:800; word-wrap:break-word; }
   .desc { margin:10.5mm auto 0; width:150mm; font-size:15.2pt; line-height:1.58; color:#18314f; font-weight:500; }
-  .footer { width:150mm; margin-top:auto; padding-bottom:4mm; display:flex; justify-content:flex-end; align-items:flex-end; }
+  .footer { width:150mm; margin-top:auto; padding-bottom:3mm; display:flex; justify-content:flex-end; align-items:flex-end; }
   .footer-right { width:86mm; margin-left:auto; text-align:right; display:flex; flex-direction:column; justify-content:flex-end; align-items:flex-end; gap:3.2mm; }
   .org { width:86mm; display:flex; justify-content:flex-end; align-items:center; gap:3.2mm; }
-  .school-logo { width:17mm; height:auto; object-fit:contain; flex:0 0 auto; }
+  .school-logo { width:17mm; height:auto; object-fit:contain; }
   .org-name { max-width:63mm; font-size:14.2pt; line-height:1.08; letter-spacing:.04em; text-transform:uppercase; font-weight:900; color:#18314f; text-align:right; }
   .sig { position:relative; width:62mm; min-height:19mm; display:flex; flex-direction:column; align-items:flex-end; justify-content:center; padding:0 18mm 0 0; border:0 !important; transform:translateY(-10px); }
   .sig:before, .sig:after { content:none !important; display:none !important; }

@@ -1,5 +1,5 @@
 /* SKYSEF questionnaire -> background certificate PDF -> final record. */
-const SURVEY_ENDPOINT = "https://script.google.com/macros/s/AKfycbz-jiOmdy81v1rjuN8xuOlHr4waH1i6VGzsmnpEK3_609oOW3_zhfgpC4ERa7KZOuP4/exec";
+const SURVEY_ENDPOINT = "https://script.google.com/macros/s/AKfycbxaJY0q9fZqQdOU-O2TY9G579Za-KCgaCZo4JOun65l5feOXHlshGspJ8xhyykW1g0/exec";
 const ADMIN_PASSWORD_CLIENT = "set";
 let remoteConfigLoaded = false;
 
