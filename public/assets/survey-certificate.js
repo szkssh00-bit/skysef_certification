@@ -1,5 +1,5 @@
-/* SKYSEF questionnaire -> Apps Script -> private PDF. */
-const SURVEY_ENDPOINT = "https://script.google.com/macros/s/AKfycbyktwUSn6GrAK-UBxM6IUzkJQN99Q6G8ALYLr6M_vuhBW0zen9oMV0jcD4sQRWM0eM/exec";
+/* SKYSEF questionnaire -> background certificate PDF -> final record. */
+const SURVEY_ENDPOINT = "https://script.google.com/macros/s/AKfycbxrMaQEmrGdcLZ1h4FFnGoU8-t6FRjXBxl6_uFb-pyJqs3-iXEwNp5RRep7NMRH5zLX/exec";
 
 const SCHOOLS = [
   { school: "West Moreton Anglican College", country: "Australia" },
@@ -73,24 +73,13 @@ const PROGRAM_QUESTIONS = [
   { text: "For teachers: Teachers’ Session (Aug. 4)", dates: ["2026-08-04"], teacherOnly: true },
   { text: "Commendation Ceremony (Aug. 5)", dates: ["2026-08-05"], teacherOnly: false },
   { text: "Closing Ceremony (Aug. 5)", dates: ["2026-08-05"], teacherOnly: false },
-  { text: "Accommodation / Home Stay", dates: ["2026-08-02", "2026-08-03", "2026-08-04", "2026-08-05"], teacherOnly: false, general: true },
+  { text: "Accommodation / Home Stay", dates: ["2026-08-02", "2026-08-03", "2026-08-04", "2026-08-05"], teacherOnly: false, general: true, accommodationOnly: true },
   { text: "Transportation", dates: ["2026-08-02", "2026-08-03", "2026-08-04", "2026-08-05"], teacherOnly: false, general: true },
   { text: "Schedule", dates: ["2026-08-02", "2026-08-03", "2026-08-04", "2026-08-05"], teacherOnly: false, general: true }
 ];
-const ITEM_EXTRA_OPTIONS = [
-  "Research discussion",
-  "Scientific English communication",
-  "International exchange",
-  "Friendship and networking",
-  "Venue and facilities",
-  "Food and reception",
-  "Other"
-];
+const ITEM_EXTRA_OPTIONS = ["Research discussion", "Scientific English communication", "International exchange", "Friendship and networking", "Venue and facilities", "Food and reception", "Other"];
 const LEARNING_QUESTIONS = [
-  { text: "I was inspired to engage more in the discussion.", sub: [
-    { name: "inspired_by", label: "Whom were you inspired by?" },
-    { name: "inspired_how", label: "How were you inspired?" }
-  ] },
+  { text: "I was inspired to engage more in the discussion.", sub: [{ name: "inspired_by", label: "Whom were you inspired by?" }, { name: "inspired_how", label: "How were you inspired?" }] },
   { text: "My communication with the other participating students was satisfactory.", sub: [{ name: "communication_reason", label: "Why do you feel so?" }] },
   { text: "My presentation(s) was/were satisfactory.", sub: [{ name: "presentation_reason", label: "Why do you feel so?" }] },
   { text: "I gained the friendship with the other participating students that would last long.", sub: [] },
@@ -105,7 +94,10 @@ const TEACHER_QUESTIONS = [
   { text: "FOR TEACHERS: What would you like to put an emphasis on in order for your student to demonstrate their abilities in science in an international science conference like SKYSEF 2026?", textareaOnly: true, name: "teacher_emphasis" }
 ];
 
+let submissionId = null;
 let latestPdf = null;
+let pdfPromise = null;
+let participantDataSnapshot = null;
 const $ = (id) => document.getElementById(id);
 
 function safeText(value, fallback) { return String(value || "").replace(/\s+/g, " ").trim() || fallback; }
@@ -115,8 +107,8 @@ function makeSubmissionId() {
   return `skysef-${Date.now()}-${Array.from(rand).map((v) => v.toString(16)).join("")}`;
 }
 function sanitizeFileName(text) { return String(text || "certificate").normalize("NFKC").replace(/[\\/:*?"<>|]/g, "_").replace(/\s+/g, "_").slice(0, 80); }
-function setStatus(message, type = "") {
-  const el = $("submitStatus");
+function setStatus(id, message, type = "") {
+  const el = $(id);
   el.className = `submit-status ${type}`.trim();
   el.textContent = message || "";
 }
@@ -136,7 +128,6 @@ function getSelectableEventDates() {
   let upper = eventEnd;
   if (today >= eventStart && today <= eventEnd) upper = today;
   if (today > eventEnd) upper = eventEnd;
-  // Before the event, keep all dates selectable so that administrators can test the form.
   return EVENT_DATES.filter((d) => d.value <= upper);
 }
 function getParticipationPeriodText() {
@@ -155,6 +146,7 @@ function isDateInSelectedPeriod(dateValue) {
 function isProgramVisible(question) {
   const isTeacher = $("position").value === "Teacher";
   if (question.teacherOnly && !isTeacher) return false;
+  if (question.accommodationOnly && $("accommodationUse").value !== "Yes") return false;
   return question.dates.some(isDateInSelectedPeriod);
 }
 function setQuestionEnabled(item, enabled, required) {
@@ -167,34 +159,28 @@ function setQuestionEnabled(item, enabled, required) {
 }
 function updateItemSelectOptions() {
   const options = [];
-  PROGRAM_QUESTIONS.forEach((q) => {
-    if (isProgramVisible(q)) options.push(q.text);
-  });
-  ITEM_EXTRA_OPTIONS.forEach((label) => {
-    if (!options.includes(label)) options.push(label);
-  });
+  PROGRAM_QUESTIONS.forEach((q) => { if (isProgramVisible(q)) options.push(q.text); });
+  ITEM_EXTRA_OPTIONS.forEach((label) => { if (!options.includes(label)) options.push(label); });
   document.querySelectorAll("select.item-select").forEach((select) => {
     const current = select.value;
-    select.innerHTML = '<option value="">Select item</option>' + options.map((label) => `<option value="${label.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;")}">${label}</option>`).join("");
+    select.innerHTML = '<option value="">Select item</option>' + options.map((label) => `<option value="${escapeOption(label)}">${label}</option>`).join("");
     if ([...select.options].some((option) => option.value === current)) select.value = current;
   });
 }
+function escapeOption(s) { return String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;"); }
 function updateDynamicQuestionnaire() {
   document.querySelectorAll(".program-question").forEach((item) => {
     const index = Number(item.dataset.index);
     const q = PROGRAM_QUESTIONS[index];
     const visible = isProgramVisible(q);
-    const required = visible;
-    setQuestionEnabled(item, visible, required);
+    setQuestionEnabled(item, visible, visible);
   });
   updateItemSelectOptions();
 }
 function updatePeriodPreview() {
   const start = $("participationStart").value;
   const end = $("participationEnd").value;
-  if (start && end && start > end) {
-    $("participationEnd").value = start;
-  }
+  if (start && end && start > end) $("participationEnd").value = start;
   const text = getParticipationPeriodText();
   $("certificatePeriodPreview").textContent = `Certificate text: held from ${text}`;
   $("certificateDescription").innerHTML = `for participating in the Shizuoka Kita Youth Science Engineering Forum 2026,<br>held from ${text},<br>hosted and organized by Shizuoka Kita Junior and Senior High School`;
@@ -213,7 +199,7 @@ function base64ToBlob(base64, mimeType = "application/pdf") {
 }
 function downloadLatestPdf() {
   if (!latestPdf || !latestPdf.base64) {
-    $("pdfStatus").textContent = "PDF data is not available. Please submit the questionnaire again.";
+    $("pdfStatus").textContent = "PDF data is not ready yet. Please wait a moment and press Download PDF.";
     return;
   }
   const blob = base64ToBlob(latestPdf.base64, latestPdf.mimeType || "application/pdf");
@@ -228,19 +214,17 @@ function downloadLatestPdf() {
   $("pdfStatus").textContent = "PDF download started. Please check your browser download list.";
 }
 function renderSelectOptions() {
-  const schoolSelect = $("inputSchool");
   SCHOOLS.forEach(({ school }) => {
     const option = document.createElement("option");
     option.value = school;
     option.textContent = school;
-    schoolSelect.appendChild(option);
+    $("inputSchool").appendChild(option);
   });
-  const countrySelect = $("inputCountry");
   COUNTRIES.forEach((country) => {
     const option = document.createElement("option");
     option.value = country;
     option.textContent = country;
-    countrySelect.appendChild(option);
+    $("inputCountry").appendChild(option);
   });
   const selectableDates = getSelectableEventDates();
   ["participationStart", "participationEnd"].forEach((id) => {
@@ -394,10 +378,10 @@ function syncCountryFromSchool() {
   if (selected && selected.country !== "Other") $("inputCountry").value = selected.country;
   applyCertificateText();
 }
-function collectFormData() {
-  const fd = new FormData($("surveyForm"));
-  const data = {
-    submissionId: makeSubmissionId(),
+function collectParticipantData() {
+  const fd = new FormData($("participantForm"));
+  return {
+    submissionId,
     submittedAtClient: new Date().toISOString(),
     event: "SKYSEF 2026",
     name: fd.get("name") || "",
@@ -406,9 +390,15 @@ function collectFormData() {
     position: fd.get("position") || "",
     positionOther: fd.get("positionOther") || "",
     email: fd.get("email") || "",
+    accommodationUse: fd.get("accommodationUse") || "",
     participationStart: fd.get("participationStart") || "",
     participationEnd: fd.get("participationEnd") || "",
-    participationPeriodText: getParticipationPeriodText(),
+    participationPeriodText: getParticipationPeriodText()
+  };
+}
+function collectQuestionnaireData() {
+  const fd = new FormData($("surveyForm"));
+  const data = {
     liked_1: fd.get("liked_1") || "",
     liked_2: fd.get("liked_2") || "",
     liked_3: fd.get("liked_3") || "",
@@ -437,7 +427,10 @@ function collectFormData() {
   data.teacher_1_score = fd.get("teacher_1") || "";
   return data;
 }
-async function postWithRetry(data, attempts = 5) {
+function collectFullData() {
+  return { ...(participantDataSnapshot || collectParticipantData()), ...collectQuestionnaireData() };
+}
+async function postWithRetry(data, attempts = 4) {
   if (!SURVEY_ENDPOINT) throw new Error("SURVEY_ENDPOINT is not configured.");
   let lastError = null;
   for (let i = 0; i < attempts; i++) {
@@ -455,12 +448,7 @@ async function postWithRetry(data, attempts = 5) {
       const text = await response.text();
       let json;
       try { json = JSON.parse(text); } catch (e) { throw new Error(`Server did not return JSON: ${text.slice(0, 120)}`); }
-      if (!response.ok || !json.ok) {
-        const message = json.error || `Server error: ${response.status}`;
-        const err = new Error(message);
-        err.retryable = json.retryable !== false;
-        throw err;
-      }
+      if (!response.ok || !json.ok) throw new Error(json.error || `Server error: ${response.status}`);
       return json;
     } catch (error) {
       lastError = error;
@@ -470,37 +458,99 @@ async function postWithRetry(data, attempts = 5) {
   }
   throw lastError;
 }
-function showCertificateView(serverResult) {
-  applyCertificateText();
+function setPdfFromResult(result) {
+  if (!result || !result.pdfBase64) return;
   latestPdf = {
-    base64: serverResult.pdfBase64,
-    fileName: serverResult.fileName || `SKYSEF2026_Certificate_${sanitizeFileName($("inputName").value)}.pdf`,
-    mimeType: serverResult.mimeType || "application/pdf"
+    base64: result.pdfBase64,
+    fileName: result.fileName || `SKYSEF2026_Certificate_${sanitizeFileName($("inputName").value)}.pdf`,
+    mimeType: result.mimeType || "application/pdf"
   };
-  $("questionnaireView").hidden = true;
-  $("questionnaireView").classList.remove("is-active");
-  $("certificateView").hidden = false;
-  $("certificateView").classList.add("is-active");
-  $("pdfStatus").textContent = serverResult.driveFileId ? "PDF was generated and saved privately to Drive." : "PDF was generated.";
+}
+function startBackgroundPdf() {
+  latestPdf = null;
+  pdfPromise = postWithRetry({ ...participantDataSnapshot, mode: "createPdf" }, 3)
+    .then((result) => {
+      setPdfFromResult(result);
+      return result;
+    })
+    .catch((error) => {
+      console.error(error);
+      setStatus("participantStatus", `Certificate PDF preparation is delayed: ${error.message}`, "error");
+      throw error;
+    });
+}
+function showView(viewId) {
+  ["participantView", "questionnaireView", "certificateView"].forEach((id) => {
+    const el = $(id);
+    const active = id === viewId;
+    el.hidden = !active;
+    el.classList.toggle("is-active", active);
+  });
   window.scrollTo({ top: 0, behavior: "smooth" });
-  history.replaceState(null, "", "#certificate");
-  setTimeout(downloadLatestPdf, 250);
 }
 function showQuestionnaireView() {
-  $("certificateView").hidden = true;
-  $("certificateView").classList.remove("is-active");
-  $("questionnaireView").hidden = false;
-  $("questionnaireView").classList.add("is-active");
-  window.scrollTo({ top: 0, behavior: "smooth" });
-  history.replaceState(null, "", window.location.pathname + window.location.search);
+  showView("questionnaireView");
+  history.replaceState(null, "", "#questionnaire");
 }
-function setSubmitting(isSubmitting) {
-  const button = $("submitButton");
-  button.disabled = isSubmitting;
-  button.textContent = isSubmitting ? "Recording and creating Certification..." : "Submit and create Certification for SKYSEF";
-  document.querySelectorAll("#surveyForm input, #surveyForm select, #surveyForm textarea, #surveyForm button").forEach((el) => {
-    if (el.id !== "submitButton") el.disabled = isSubmitting;
-  });
+function showCertificateView() {
+  applyCertificateText();
+  showView("certificateView");
+  history.replaceState(null, "", "#certificate");
+}
+function setButtonBusy(button, busy, busyText, normalText) {
+  button.disabled = busy;
+  button.textContent = busy ? busyText : normalText;
+}
+async function handleNext(event) {
+  event.preventDefault();
+  if (!$("participantForm").reportValidity()) {
+    setStatus("participantStatus", "Please complete the required fields.", "error");
+    return;
+  }
+  submissionId = submissionId || makeSubmissionId();
+  participantDataSnapshot = collectParticipantData();
+  applyCertificateText();
+  updateDynamicQuestionnaire();
+  setButtonBusy($("nextButton"), true, "Preparing certificate...", "Next");
+  setStatus("participantStatus", "Preparing the certificate in the background. You can proceed to the questionnaire.", "ok");
+  startBackgroundPdf();
+  setTimeout(() => {
+    setButtonBusy($("nextButton"), false, "Preparing certificate...", "Next");
+    showQuestionnaireView();
+  }, 250);
+}
+async function handleSubmit(event) {
+  event.preventDefault();
+  if (!$("surveyForm").reportValidity()) {
+    setStatus("submitStatus", "Please complete the required fields.", "error");
+    return;
+  }
+  setButtonBusy($("submitButton"), true, "Submitting...", "Submit");
+  setStatus("submitStatus", "Submitting your questionnaire response.");
+  try {
+    const data = collectFullData();
+    await postWithRetry({ ...data, mode: "recordOnly" }, 5);
+    setStatus("submitStatus", "Response recorded.", "ok");
+    showCertificateView();
+    $("pdfStatus").textContent = latestPdf ? "PDF is ready. Download will start automatically." : "Waiting for PDF prepared in the background.";
+    if (!latestPdf && pdfPromise) {
+      try {
+        const result = await pdfPromise;
+        setPdfFromResult(result);
+      } catch (error) {
+        $("pdfStatus").textContent = `PDF generation is delayed: ${error.message}. Please contact SKYSEF staff if it does not finish.`;
+      }
+    }
+    if (latestPdf) {
+      $("pdfStatus").textContent = "PDF is ready. Download will start automatically.";
+      setTimeout(downloadLatestPdf, 250);
+    }
+  } catch (error) {
+    console.error(error);
+    setStatus("submitStatus", `Submission failed: ${error.message}. Please try again.`, "error");
+  } finally {
+    setButtonBusy($("submitButton"), false, "Submitting...", "Submit");
+  }
 }
 function init() {
   renderSelectOptions();
@@ -510,33 +560,15 @@ function init() {
   toggleConditionalBlocks();
   $("inputName").addEventListener("input", applyCertificateText);
   $("inputSchool").addEventListener("change", syncCountryFromSchool);
+  $("inputCountry").addEventListener("change", applyCertificateText);
   $("position").addEventListener("change", toggleConditionalBlocks);
+  $("accommodationUse").addEventListener("change", updateDynamicQuestionnaire);
   $("participationStart").addEventListener("change", updatePeriodPreview);
   $("participationEnd").addEventListener("change", updatePeriodPreview);
   $("downloadPdfButton").addEventListener("click", downloadLatestPdf);
-  $("backToFormButton").addEventListener("click", showQuestionnaireView);
-  $("surveyForm").addEventListener("submit", async (event) => {
-    event.preventDefault();
-    const form = event.currentTarget;
-    if (!form.reportValidity()) {
-      setStatus("Please complete the required fields.", "error");
-      return;
-    }
-    applyCertificateText();
-    const data = collectFormData();
-    setSubmitting(true);
-    setStatus("Submitting your response and generating your private PDF. Please do not close this page.");
-    try {
-      const result = await postWithRetry(data);
-      setStatus("Completed. Moving to your certificate page...", "ok");
-      showCertificateView(result);
-    } catch (error) {
-      console.error(error);
-      setStatus(`Submission failed: ${error.message}. Your response has not been accepted yet. Please try again.`, "error");
-    } finally {
-      setSubmitting(false);
-    }
-  });
-  showQuestionnaireView();
+  $("backToQuestionnaireButton").addEventListener("click", showQuestionnaireView);
+  $("participantForm").addEventListener("submit", handleNext);
+  $("surveyForm").addEventListener("submit", handleSubmit);
+  showView("participantView");
 }
 document.addEventListener("DOMContentLoaded", init);

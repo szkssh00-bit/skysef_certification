@@ -22,9 +22,8 @@ const EVENT_DATES = [
 ];
 
 const HEADERS = [
-  'serverAcceptedAt', 'submissionId', 'event', 'name', 'school', 'country', 'position', 'positionOther', 'email',
+  'serverAcceptedAt', 'submissionId', 'event', 'name', 'school', 'country', 'position', 'positionOther', 'email', 'accommodationUse',
   'participationStart', 'participationEnd', 'participationPeriodText',
-
   'Q1 Opening Ceremony',
   'Q2 Keynote Address',
   'Q3 Welcome Dinner',
@@ -39,10 +38,8 @@ const HEADERS = [
   'Q12 Accommodation/Home Stay',
   'Q13 Transportation',
   'Q14 Schedule',
-
   'Liked Item 1', 'Liked Item 2', 'Liked Item 3',
   'Improved Item 1', 'Improved Item 2', 'Improved Item 3',
-
   'A1 Inspired to engage more',
   'A1 Inspired by whom',
   'A1 How inspired',
@@ -61,8 +58,7 @@ const HEADERS = [
   'A10 How satisfactory',
   'A11 Teacher emphasis',
   'Comments',
-
-  'driveFileId', 'driveFileName', 'driveFileUrl', 'status', 'errorMessage'
+  'driveFileId', 'driveFileName', 'driveFileUrl', 'status', 'errorMessage', 'lastUpdatedAt'
 ];
 
 const HEADER_MAP = {
@@ -114,13 +110,17 @@ function doPost(e) {
   const started = new Date();
   let data = {};
   let rowNumber = null;
+
   try {
     const raw = e && e.postData && e.postData.contents ? e.postData.contents : '{}';
     data = JSON.parse(raw);
-    validate_(data);
-    data.serverAcceptedAt = started.toISOString();
+    const mode = data.mode || 'recordOnly';
+
+    validateParticipant_(data);
+    data.serverAcceptedAt = data.serverAcceptedAt || started.toISOString();
+    data.lastUpdatedAt = new Date().toISOString();
+    data.event = CONFIG.EVENT_NAME;
     data.participationPeriodText = makeParticipationPeriodText_(data.participationStart, data.participationEnd);
-    data.status = 'accepted';
 
     const sheet = getSheet_();
     ensureHeaders_(sheet);
@@ -128,29 +128,61 @@ function doPost(e) {
     const lock = LockService.getScriptLock();
     try {
       lock.waitLock(30000);
-      const existingRow = findSubmissionRow_(sheet, data.submissionId);
-      if (existingRow) {
-        rowNumber = existingRow;
+      rowNumber = findSubmissionRow_(sheet, data.submissionId);
+      if (!rowNumber) {
+        data.status = mode === 'createPdf' ? 'certificate_preparing' : 'questionnaire_received';
+        data.errorMessage = '';
+        rowNumber = appendRowPartial_(sheet, data);
       } else {
-        rowNumber = appendAcceptedRow_(sheet, data);
+        data.status = mode === 'createPdf' ? 'certificate_preparing' : 'questionnaire_received';
+        data.errorMessage = '';
+        updateRowPartial_(sheet, rowNumber, data);
       }
       SpreadsheetApp.flush();
     } finally {
       try { lock.releaseLock(); } catch (err) {}
     }
 
+    if (mode === 'recordOnly') {
+      return json_({
+        ok: true,
+        mode: 'recordOnly',
+        submissionId: data.submissionId,
+        accepted: true,
+        participationPeriodText: data.participationPeriodText
+      });
+    }
+
+    if (mode !== 'createPdf') {
+      throw new Error('Invalid mode: ' + mode);
+    }
+
     const pdf = createCertificatePdf_(data);
     const file = savePdfToDrive_(pdf.blob, pdf.fileName);
-    data.driveFileId = file.getId();
-    data.driveFileName = pdf.fileName;
-    data.driveFileUrl = file.getUrl();
-    data.status = 'completed';
 
-    updateRow_(sheet, rowNumber, data);
-    SpreadsheetApp.flush();
+    const pdfData = {
+      submissionId: data.submissionId,
+      driveFileId: file.getId(),
+      driveFileName: pdf.fileName,
+      driveFileUrl: file.getUrl(),
+      status: 'certificate_completed',
+      errorMessage: '',
+      lastUpdatedAt: new Date().toISOString()
+    };
+
+    const lock2 = LockService.getScriptLock();
+    try {
+      lock2.waitLock(30000);
+      rowNumber = findSubmissionRow_(sheet, data.submissionId) || rowNumber || appendRowPartial_(sheet, data);
+      updateRowPartial_(sheet, rowNumber, pdfData);
+      SpreadsheetApp.flush();
+    } finally {
+      try { lock2.releaseLock(); } catch (err) {}
+    }
 
     return json_({
       ok: true,
+      mode: 'createPdf',
       submissionId: data.submissionId,
       fileName: pdf.fileName,
       mimeType: 'application/pdf',
@@ -160,10 +192,13 @@ function doPost(e) {
   } catch (err) {
     const message = String(err && err.message ? err.message : err);
     try {
-      if (rowNumber) {
-        data.status = 'error';
-        data.errorMessage = message;
-        updateRow_(getSheet_(), rowNumber, data);
+      if (data && data.submissionId) {
+        const sheet = getSheet_();
+        ensureHeaders_(sheet);
+        rowNumber = findSubmissionRow_(sheet, data.submissionId);
+        if (rowNumber) {
+          updateRowPartial_(sheet, rowNumber, { submissionId: data.submissionId, status: 'error', errorMessage: message, lastUpdatedAt: new Date().toISOString() });
+        }
       }
     } catch (ignored) {}
     console.error(err && err.stack ? err.stack : err);
@@ -171,12 +206,11 @@ function doPost(e) {
   }
 }
 
-function validate_(data) {
+function validateParticipant_(data) {
   const required = ['submissionId', 'name', 'school', 'country', 'position', 'participationStart', 'participationEnd'];
-  const missing = required.filter((key) => !String(data[key] || '').trim());
+  const missing = required.filter(function(key) { return !String(data[key] || '').trim(); });
   if (missing.length) throw new Error('Missing required fields: ' + missing.join(', '));
   if (String(data.participationStart) > String(data.participationEnd)) throw new Error('Participation start date must be before or equal to the end date.');
-
   const allowed = getServerSelectableDateValues_();
   if (allowed.indexOf(String(data.participationStart)) === -1 || allowed.indexOf(String(data.participationEnd)) === -1) {
     throw new Error('Selected participation date is not available today. Please reload the page and select again.');
@@ -229,17 +263,23 @@ function findSubmissionRow_(sheet, submissionId) {
   return index >= 0 ? index + 2 : null;
 }
 
-function appendAcceptedRow_(sheet, data) {
+function appendRowPartial_(sheet, data) {
+  ensureHeaders_(sheet);
   const headers = sheet.getRange(1, 1, 1, sheet.getLastColumn()).getValues()[0].map(String);
-  const row = headers.map(function(key) { return valueForHeader_(key, data); });
+  const row = headers.map(function(header) { return valueForHeader_(header, data); });
   sheet.appendRow(row);
   return sheet.getLastRow();
 }
 
-function updateRow_(sheet, rowNumber, data) {
+function updateRowPartial_(sheet, rowNumber, data) {
   ensureHeaders_(sheet);
   const headers = sheet.getRange(1, 1, 1, sheet.getLastColumn()).getValues()[0].map(String);
-  const row = headers.map(function(key) { return valueForHeader_(key, data); });
+  const existing = sheet.getRange(rowNumber, 1, 1, headers.length).getValues()[0];
+  const row = headers.map(function(header, i) {
+    const newValue = valueForHeader_(header, data);
+    if (newValue === '' || newValue == null) return existing[i];
+    return newValue;
+  });
   sheet.getRange(rowNumber, 1, 1, row.length).setValues([row]);
 }
 
@@ -259,10 +299,7 @@ function createCertificatePdf_(data) {
   const period = clean_(data.participationPeriodText || makeParticipationPeriodText_(data.participationStart, data.participationEnd), 'August 2 to 5, 2026');
   const fileName = 'SKYSEF2026_Certificate_' + fileSafe_(name) + '_' + fileSafe_(period).substring(0, 28) + '.pdf';
   const html = certificateHtml_(name, school, period);
-  const blob = Utilities
-    .newBlob(html, 'text/html', fileName.replace(/\.pdf$/i, '.html'))
-    .getAs(MimeType.PDF)
-    .setName(fileName);
+  const blob = Utilities.newBlob(html, 'text/html', fileName.replace(/\.pdf$/i, '.html')).getAs(MimeType.PDF).setName(fileName);
   return { blob: blob, fileName: fileName };
 }
 
@@ -273,62 +310,51 @@ function certificateHtml_(name, school, period) {
 <meta charset="utf-8">
 <style>
   @page { size: A4 portrait; margin: 0; }
-  html, body { margin:0; padding:0; background:#fff; width:210mm; height:297mm; }
-  .page { position:relative; width:210mm; height:297mm; overflow:hidden; color:#112236; font-family:"Segoe UI", "Noto Sans", sans-serif; background: radial-gradient(circle at 50% 18%, #ffffff 0%, #f7fafc 100%); }
-  .page:before { content:""; position:absolute; inset:9mm; border:2.1mm solid #123a68; border-radius:6mm; box-sizing:border-box; }
-  .page:after { content:""; position:absolute; inset:15mm; border:.55mm solid #b99a55; border-radius:4mm; box-sizing:border-box; }
-  .corner1, .corner2 { position:absolute; width:35mm; height:35mm; border:1.1mm solid rgba(185,154,85,.70); transform:rotate(45deg); box-sizing:border-box; }
-  .corner1 { left:22mm; top:22mm; border-right:0; border-bottom:0; }
-  .corner2 { right:22mm; bottom:22mm; border-left:0; border-top:0; }
-  .content { position:relative; z-index:1; height:100%; padding:25mm 27mm 24mm; text-align:center; box-sizing:border-box; }
-  .skysef { width:90mm; max-height:35mm; height:auto; margin:0 auto 9mm; display:block; }
-  h1 { margin:0; color:#123a68; font-family:Georgia, Cambria, serif; font-size:31pt; line-height:1.08; font-weight:700; letter-spacing:.01em; }
-  h1 span { font-size:35pt; }
-  .awarded { margin:14mm 0 0; font-family:Georgia, Cambria, serif; font-size:16.5pt; color:#283d59; }
-  .recipient { margin:7mm auto 0; padding-bottom:5mm; border-bottom:.55mm solid rgba(185,154,85,.85); width:156mm; }
-  .name { min-height:13mm; font-size:25pt; line-height:1.12; font-weight:800; color:#091d35; letter-spacing:.01em; word-wrap:break-word; }
-  .school { min-height:8mm; margin-top:1.5mm; font-size:14.2pt; line-height:1.25; color:#304b6e; font-weight:700; word-wrap:break-word; }
-  .desc { margin:11mm auto 0; max-width:148mm; font-family:Georgia, Cambria, serif; font-size:15.4pt; line-height:1.55; color:#18314f; }
+  html, body { margin:0; padding:0; width:210mm; height:297mm; background:#fff; }
+  .page { position:relative; width:210mm; height:297mm; overflow:hidden; color:#111827; background:linear-gradient(180deg,#ffffff 0%,#f7fbff 100%); font-family:"Segoe UI","Noto Sans",Arial,sans-serif; }
+  .page:before { content:""; position:absolute; inset:12mm; border:.8mm solid rgba(16,36,63,.86); border-radius:1.5mm; box-sizing:border-box; }
+  .page:after { content:""; position:absolute; inset:16mm; border:.35mm solid rgba(197,160,87,.75); box-sizing:border-box; }
+  .accent-top { position:absolute; top:-46mm; right:-34mm; width:142mm; height:96mm; border-radius:0 0 0 58mm; background:linear-gradient(135deg,rgba(24,166,200,.95),rgba(16,36,63,.98)); transform:rotate(-4deg); }
+  .accent-top:after { content:""; position:absolute; left:8mm; bottom:-8mm; width:112mm; height:18mm; border-radius:999px; background:rgba(197,160,87,.90); transform:rotate(-8deg); }
+  .accent-bottom { position:absolute; left:-54mm; bottom:-56mm; width:142mm; height:104mm; border-radius:0 72mm 0 0; background:linear-gradient(135deg,rgba(16,36,63,.96),rgba(19,95,159,.78)); transform:rotate(-3deg); }
+  .content { position:relative; z-index:1; height:100%; padding:28mm 26mm 25mm; text-align:center; box-sizing:border-box; }
+  .logo-row { width:100%; text-align:left; }
+  .skysef { width:58mm; max-height:24mm; object-fit:contain; }
+  .kicker { margin:22mm 0 0; color:#135f9f; text-transform:uppercase; font-size:10.5pt; letter-spacing:.15em; font-weight:900; }
+  h1 { margin:4mm 0 0; color:#10243f; line-height:1; letter-spacing:-.02em; }
+  h1 .big { display:block; font-family:Georgia,Cambria,serif; font-size:40pt; font-weight:700; }
+  h1 .small { display:block; margin-top:2mm; font-size:16pt; text-transform:uppercase; letter-spacing:.28em; color:#c5a057; font-weight:900; }
+  .awarded { margin:14mm 0 0; font-family:Georgia,Cambria,serif; font-size:13.8pt; color:#4b607a; }
+  .recipient { width:150mm; margin:6mm auto 0; padding:5mm 5mm 4.5mm; border-top:.35mm solid rgba(197,160,87,.72); border-bottom:.35mm solid rgba(197,160,87,.72); background:rgba(255,255,255,.72); }
+  .name { min-height:14mm; font-size:30pt; line-height:1.1; font-weight:900; color:#071a31; word-wrap:break-word; }
+  .school { min-height:8mm; margin-top:1.5mm; font-size:13.8pt; line-height:1.25; color:#33506d; font-weight:800; word-wrap:break-word; }
+  .desc { margin:11mm auto 0; width:148mm; font-family:Georgia,Cambria,serif; font-size:13.8pt; line-height:1.72; color:#18314f; }
   .footer { position:absolute; left:27mm; right:27mm; bottom:25mm; display:table; width:156mm; }
   .col { display:table-cell; width:50%; vertical-align:bottom; }
   .org { text-align:left; padding-left:3mm; }
-  .school-logo { width:29mm; height:auto; margin-bottom:4mm; }
-  .org-name { font-size:12.5pt; line-height:1.28; font-weight:800; color:#18314f; }
-  .sig { position:relative; text-align:center; padding-right:4mm; height:42mm; }
-  .principal { position:absolute; left:0; right:0; bottom:9mm; }
-  .principal-name { font-size:17pt; line-height:1.1; font-weight:800; }
-  .principal-title { margin-top:1mm; font-size:12.5pt; line-height:1.1; font-weight:700; color:#304b6e; }
-  .seal { position:absolute; width:23mm; height:24mm; right:5mm; bottom:8mm; opacity:.84; }
+  .school-logo { width:25mm; height:auto; margin-bottom:4mm; }
+  .org-name { font-size:11.2pt; line-height:1.28; font-weight:900; color:#18314f; }
+  .sig { position:relative; text-align:center; padding-right:4mm; height:40mm; }
+  .sig-line { position:absolute; left:12mm; right:12mm; bottom:24mm; height:.35mm; background:rgba(16,36,63,.70); }
+  .principal { position:absolute; left:0; right:0; bottom:7mm; }
+  .principal-name { font-size:16.5pt; line-height:1.1; font-weight:900; color:#10243f; }
+  .principal-title { margin-top:1mm; font-size:11.5pt; line-height:1.1; font-weight:800; color:#304b6e; }
+  .seal { position:absolute; width:22mm; height:23mm; right:5mm; bottom:6mm; opacity:.84; }
 </style>
 </head>
 <body>
   <div class="page">
-    <div class="corner1"></div><div class="corner2"></div>
+    <div class="accent-top"></div><div class="accent-bottom"></div>
     <div class="content">
-      <img class="skysef" src="${CONFIG.LOGO_SKYSEF_URL}">
-      <h1>Certificate of<br><span>Participation</span></h1>
-      <p class="awarded">This Certificate is awarded to</p>
-      <div class="recipient">
-        <div class="name">${escapeHtml_(name)}</div>
-        <div class="school">${escapeHtml_(school)}</div>
-      </div>
-      <p class="desc">
-        for participating in the Shizuoka Kita Youth Science Engineering Forum 2026,<br>
-        held from ${escapeHtml_(period)},<br>
-        hosted and organized by Shizuoka Kita Junior and Senior High School
-      </p>
+      <div class="logo-row"><img class="skysef" src="${CONFIG.LOGO_SKYSEF_URL}"></div>
+      <div class="kicker">Shizuoka Kita Youth Science Engineering Forum 2026</div>
+      <h1><span class="big">Certificate</span><span class="small">of Participation</span></h1>
+      <p class="awarded">This certificate is proudly awarded to</p>
+      <div class="recipient"><div class="name">${escapeHtml_(name)}</div><div class="school">${escapeHtml_(school)}</div></div>
+      <p class="desc">for participating in the Shizuoka Kita Youth Science Engineering Forum 2026,<br>held from ${escapeHtml_(period)},<br>hosted and organized by Shizuoka Kita Junior and Senior High School</p>
       <div class="footer">
-        <div class="col org">
-          <img class="school-logo" src="${CONFIG.LOGO_SCHOOL_URL}">
-          <div class="org-name">Shizuoka Kita Junior and Senior High<br>School</div>
-        </div>
-        <div class="col sig">
-          <div class="principal">
-            <div class="principal-name">Hisao Ohashi</div>
-            <div class="principal-title">Principal</div>
-          </div>
-          <img class="seal" src="${CONFIG.SEAL_URL}">
-        </div>
+        <div class="col org"><img class="school-logo" src="${CONFIG.LOGO_SCHOOL_URL}"><div class="org-name">Shizuoka Kita Junior and Senior High<br>School</div></div>
+        <div class="col sig"><div class="sig-line"></div><div class="principal"><div class="principal-name">Hisao Ohashi</div><div class="principal-title">Principal</div></div><img class="seal" src="${CONFIG.SEAL_URL}"></div>
       </div>
     </div>
   </div>
@@ -347,10 +373,5 @@ function fileSafe_(value) {
   return clean_(value, 'certificate').replace(/[\\/:*?"<>|]/g, '_').replace(/\s+/g, '_').substring(0, 80);
 }
 function escapeHtml_(value) {
-  return String(value == null ? '' : value)
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;')
-    .replace(/'/g, '&#39;');
+  return String(value == null ? '' : value).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
 }

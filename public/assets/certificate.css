@@ -1,19 +1,21 @@
 :root {
   --paper-width: 210mm;
   --paper-height: 297mm;
-  --cert-blue: #123a68;
-  --cert-blue2: #0f6098;
-  --cert-gold: #b99a55;
-  --cert-ink: #112236;
+  --cert-navy: #10243f;
+  --cert-blue: #135f9f;
+  --cert-sky: #dff2fb;
+  --cert-gold: #c5a057;
+  --cert-ink: #111827;
+  --cert-muted: #4b607a;
 }
 .certificate-page * { box-sizing: border-box; }
 .certificate-page {
   position: relative;
   width: var(--paper-width);
   height: var(--paper-height);
-  background: radial-gradient(circle at 50% 18%, #ffffff 0%, #f7fafc 100%);
   overflow: hidden;
   color: var(--cert-ink);
+  background: linear-gradient(180deg, #ffffff 0%, #f7fbff 100%);
   font-family: Inter, "Noto Sans", "Segoe UI", system-ui, sans-serif;
   box-shadow: 0 24px 70px rgba(17,34,54,.20);
   flex: 0 0 auto;
@@ -21,99 +23,135 @@
 .certificate-page::before {
   content: "";
   position: absolute;
-  inset: 9mm;
-  border: 2.1mm solid var(--cert-blue);
-  border-radius: 6mm;
+  inset: 12mm;
+  border: .8mm solid rgba(16,36,63,.86);
+  border-radius: 1.5mm;
   z-index: 0;
 }
 .certificate-page::after {
   content: "";
   position: absolute;
-  inset: 15mm;
-  border: .55mm solid var(--cert-gold);
-  border-radius: 4mm;
+  inset: 16mm;
+  border: .35mm solid rgba(197,160,87,.75);
   z-index: 0;
 }
-.certificate-frame::before,
-.certificate-frame::after {
+.cert-accent {
+  position: absolute;
+  z-index: 0;
+  pointer-events: none;
+}
+.cert-accent-top {
+  top: -46mm;
+  right: -34mm;
+  width: 142mm;
+  height: 96mm;
+  border-radius: 0 0 0 58mm;
+  background: linear-gradient(135deg, rgba(24,166,200,.95), rgba(16,36,63,.98));
+  transform: rotate(-4deg);
+}
+.cert-accent-top::after {
   content: "";
   position: absolute;
-  width: 35mm;
-  height: 35mm;
-  border: 1.1mm solid rgba(185,154,85,.70);
-  transform: rotate(45deg);
-  z-index: 0;
+  left: 8mm;
+  bottom: -8mm;
+  width: 112mm;
+  height: 18mm;
+  border-radius: 999px;
+  background: rgba(197,160,87,.90);
+  transform: rotate(-8deg);
 }
-.certificate-frame::before { left: 22mm; top: 22mm; border-right: 0; border-bottom: 0; }
-.certificate-frame::after { right: 22mm; bottom: 22mm; border-left: 0; border-top: 0; }
+.cert-accent-bottom {
+  left: -54mm;
+  bottom: -56mm;
+  width: 142mm;
+  height: 104mm;
+  border-radius: 0 72mm 0 0;
+  background: linear-gradient(135deg, rgba(16,36,63,.96), rgba(19,95,159,.78));
+  transform: rotate(-3deg);
+}
 .certificate-content {
   position: relative;
   z-index: 1;
   height: 100%;
-  padding: 25mm 27mm 24mm;
+  padding: 28mm 26mm 25mm;
   display: grid;
-  grid-template-rows: auto auto auto auto auto 1fr auto;
+  grid-template-rows: auto auto auto auto auto auto 1fr auto;
   justify-items: center;
   text-align: center;
 }
-.logo-skysef {
-  width: 90mm;
-  max-height: 35mm;
-  height: auto;
-  object-fit: contain;
-  margin-bottom: 9mm;
+.cert-logo-row { width: 100%; display: flex; justify-content: flex-start; }
+.logo-skysef { width: 58mm; max-height: 24mm; object-fit: contain; }
+.cert-kicker {
+  margin: 22mm 0 0;
+  color: var(--cert-blue);
+  text-transform: uppercase;
+  font-size: 10.5pt;
+  letter-spacing: .15em;
+  font-weight: 900;
 }
 .title {
-  margin: 0;
-  font-family: "Libre Baskerville", Georgia, Cambria, serif;
-  font-size: 31pt;
-  line-height: 1.08;
-  color: var(--cert-blue);
-  font-weight: 700;
-  letter-spacing: .01em;
+  margin: 4mm 0 0;
+  display: grid;
+  justify-items: center;
+  gap: 2mm;
+  color: var(--cert-navy);
+  line-height: 1;
+  letter-spacing: -.02em;
 }
-.title span { font-size: 35pt; }
+.title span {
+  font-family: "Libre Baskerville", Georgia, Cambria, serif;
+  font-size: 40pt;
+  font-weight: 700;
+}
+.title small {
+  font-family: Inter, "Segoe UI", sans-serif;
+  font-size: 16pt;
+  text-transform: uppercase;
+  letter-spacing: .28em;
+  color: var(--cert-gold);
+  font-weight: 900;
+}
 .awarded {
   margin: 14mm 0 0;
   font-family: "Libre Baskerville", Georgia, Cambria, serif;
-  font-size: 16.5pt;
-  color: #283d59;
+  font-size: 13.8pt;
+  color: var(--cert-muted);
 }
 .recipient {
-  width: 156mm;
-  margin-top: 7mm;
-  padding-bottom: 5mm;
-  border-bottom: .55mm solid rgba(185,154,85,.85);
+  width: 150mm;
+  margin-top: 6mm;
+  padding: 5mm 5mm 4.5mm;
+  border-top: .35mm solid rgba(197,160,87,.72);
+  border-bottom: .35mm solid rgba(197,160,87,.72);
+  background: rgba(255,255,255,.72);
 }
 .recipient-name {
-  min-height: 13mm;
+  min-height: 14mm;
   display: grid;
   place-items: center;
-  font-size: clamp(22pt, 3.8vw, 29pt);
-  line-height: 1.12;
+  font-size: clamp(22pt, 3.8vw, 30pt);
+  line-height: 1.1;
   font-weight: 900;
-  color: #091d35;
-  letter-spacing: .01em;
+  color: #071a31;
   overflow-wrap: anywhere;
-  word-break: normal;
 }
 .recipient-school {
   min-height: 8mm;
   display: grid;
   place-items: center;
   margin-top: 1.5mm;
-  font-size: 14.2pt;
+  font-size: 13.8pt;
   line-height: 1.25;
-  color: #304b6e;
-  font-weight: 700;
+  color: #33506d;
+  font-weight: 800;
   overflow-wrap: anywhere;
 }
 .description {
   margin: 11mm auto 0;
   width: 148mm;
   font-family: "Libre Baskerville", Georgia, Cambria, serif;
-  font-size: 15.4pt;
-  line-height: 1.55;
+  font-size: 13.8pt;
+  line-height: 1.72;
   color: #18314f;
 }
 .certificate-footer {
@@ -122,43 +160,39 @@
   grid-template-columns: 1fr 1fr;
   align-items: end;
   gap: 12mm;
-  margin-bottom: 0;
 }
 .organizer-block { text-align: left; padding-left: 3mm; }
-.logo-school { width: 29mm; height: auto; object-fit: contain; margin-bottom: 4mm; }
-.organizer-name { font-size: 12.5pt; line-height: 1.28; font-weight: 800; color: #18314f; }
-.signature-block { position: relative; min-height: 42mm; display: grid; align-content: end; justify-items: center; padding-bottom: 9mm; }
-.principal-name { font-size: 17pt; line-height: 1.1; font-weight: 900; color: #10243f; }
-.principal-title { margin-top: 1mm; font-size: 12.5pt; line-height: 1.1; font-weight: 800; color: #304b6e; }
-.seal { position: absolute; width: 23mm; height: 24mm; right: 5mm; bottom: 8mm; object-fit: contain; opacity: .84; }
+.logo-school { width: 25mm; height: auto; object-fit: contain; margin-bottom: 4mm; }
+.organizer-name { font-size: 11.2pt; line-height: 1.28; font-weight: 900; color: #18314f; }
+.signature-block { position: relative; min-height: 40mm; display: grid; align-content: end; justify-items: center; padding-bottom: 7mm; }
+.signature-line { width: 62mm; height: .35mm; background: rgba(16,36,63,.70); margin-bottom: 3mm; }
+.principal-name { font-size: 16.5pt; line-height: 1.1; font-weight: 900; color: #10243f; }
+.principal-title { margin-top: 1mm; font-size: 11.5pt; line-height: 1.1; font-weight: 800; color: #304b6e; }
+.seal { position: absolute; width: 22mm; height: 23mm; right: 5mm; bottom: 6mm; object-fit: contain; opacity: .84; }
 @media (max-width: 780px) {
-  .certificate-stage {
-    justify-content: center;
-    overflow-x: hidden;
-    padding: 16px 0 36px;
-  }
-  .certificate-page {
-    width: min(100%, 430px);
-    height: auto;
-    aspect-ratio: 210 / 297;
-    transform: none;
-    margin-bottom: 0;
-  }
-  .certificate-content { padding: 12% 11% 10%; }
-  .logo-skysef { width: 56%; max-height: none; margin-bottom: 5%; }
-  .title { font-size: clamp(24px, 7.8vw, 36px); }
-  .title span { font-size: clamp(27px, 8.6vw, 40px); }
-  .awarded { margin-top: 9%; font-size: clamp(14px, 4.2vw, 18px); }
-  .recipient { width: 82%; margin-top: 5%; padding-bottom: 4%; }
+  .certificate-stage { justify-content: center; overflow-x: hidden; padding: 16px 0 36px; }
+  .certificate-page { width: min(100%, 430px); height: auto; aspect-ratio: 210 / 297; transform: none; margin-bottom: 0; }
+  .certificate-page::before { inset: 6%; border-width: 2px; }
+  .certificate-page::after { inset: 8%; border-width: 1px; }
+  .cert-accent-top { top: -14%; right: -17%; width: 70%; height: 30%; }
+  .cert-accent-bottom { left: -23%; bottom: -18%; width: 70%; height: 34%; }
+  .certificate-content { padding: 13% 12% 10%; }
+  .logo-skysef { width: 35%; max-height: none; }
+  .cert-kicker { margin-top: 12%; font-size: clamp(8px, 2.4vw, 11px); }
+  .title span { font-size: clamp(33px, 11vw, 48px); }
+  .title small { font-size: clamp(10px, 3.4vw, 15px); letter-spacing: .20em; }
+  .awarded { margin-top: 9%; font-size: clamp(12px, 3.8vw, 16px); }
+  .recipient { width: 84%; margin-top: 5%; padding: 4% 3%; }
   .recipient-name { min-height: 34px; font-size: clamp(20px, 6.6vw, 29px); }
-  .recipient-school { min-height: 24px; font-size: clamp(12px, 3.8vw, 16px); }
-  .description { width: 82%; margin-top: 7%; font-size: clamp(12px, 3.45vw, 15px); line-height: 1.5; }
-  .certificate-footer { width: 82%; gap: 5%; }
-  .logo-school { width: 38%; }
-  .organizer-name, .principal-title { font-size: clamp(9px, 2.9vw, 12px); }
-  .principal-name { font-size: clamp(13px, 4vw, 17px); }
-  .signature-block { min-height: 56px; padding-bottom: 14px; }
-  .seal { width: 28px; height: 30px; right: 4px; bottom: 12px; }
+  .recipient-school { min-height: 24px; font-size: clamp(12px, 3.7vw, 16px); }
+  .description { width: 84%; margin-top: 7%; font-size: clamp(11px, 3.2vw, 14px); line-height: 1.55; }
+  .certificate-footer { width: 84%; gap: 5%; }
+  .logo-school { width: 36%; }
+  .organizer-name, .principal-title { font-size: clamp(8px, 2.7vw, 11px); }
+  .principal-name { font-size: clamp(12px, 3.8vw, 16px); }
+  .signature-block { min-height: 56px; padding-bottom: 12px; }
+  .signature-line { width: 80%; height: 1px; margin-bottom: 7px; }
+  .seal { width: 28px; height: 30px; right: 4px; bottom: 10px; }
 }
 @media print {
   @page { size: A4 portrait; margin: 0; }

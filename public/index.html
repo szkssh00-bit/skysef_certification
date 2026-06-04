@@ -4,7 +4,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
   <title>SKYSEF 2026 Questionnaire and Certificate</title>
-  <meta name="description" content="SKYSEF questionnaire and private certificate PDF generation." />
+  <meta name="description" content="SKYSEF questionnaire and certificate generation." />
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Libre+Baskerville:wght@400;700&display=swap" rel="stylesheet">
@@ -19,18 +19,16 @@
     </a>
     <nav class="site-nav" aria-label="Page navigation">
       <a href="https://szkssh00-bit.github.io/SKYSEF/">Main Page</a>
-      <a href="#questionnaireTitle">Questionnaire</a>
+      <a href="#participant">Start</a>
     </nav>
   </header>
 
   <main>
-    <section id="questionnaireView" class="view is-active" aria-labelledby="questionnaireTitle">
+    <section id="participantView" class="view is-active" aria-labelledby="participantTitle">
       <div class="page-hero">
         <p class="eyebrow">Shizuoka Kita Youth Science Engineering Forum</p>
-        <h1 id="questionnaireTitle">Questionnaire for Participants</h1>
-        <p>
-          Thank you for joining SKYSEF 2026. Your response will be recorded first, and then your private certificate PDF will be generated.
-        </p>
+        <h1 id="participantTitle">Questionnaire for Participants</h1>
+        <p>First, enter your participant information. Your certificate PDF will be prepared in the background while you answer the questionnaire.</p>
         <div class="hero-facts" aria-label="SKYSEF facts">
           <span>Date August 2–5, 2026</span>
           <span>Host Shizuoka Kita High School</span>
@@ -39,28 +37,20 @@
       </div>
 
       <section class="form-shell">
-        <form id="surveyForm" class="survey-form" novalidate>
+        <form id="participantForm" class="survey-form" novalidate>
           <fieldset class="form-card participant-card">
             <legend>Participant information</legend>
             <div class="form-grid two">
-              <label>
-                Name <span class="required-mark">*</span>
+              <label>Name <span class="required-mark">*</span>
                 <input name="name" id="inputName" type="text" autocomplete="name" required placeholder="Full name" />
               </label>
-              <label>
-                School Name <span class="required-mark">*</span>
-                <select name="school" id="inputSchool" required>
-                  <option value="">Select your school</option>
-                </select>
+              <label>School Name <span class="required-mark">*</span>
+                <select name="school" id="inputSchool" required><option value="">Select your school</option></select>
               </label>
-              <label>
-                Country / Region <span class="required-mark">*</span>
-                <select name="country" id="inputCountry" required>
-                  <option value="">Select country / region</option>
-                </select>
+              <label>Country / Region <span class="required-mark">*</span>
+                <select name="country" id="inputCountry" required><option value="">Select country / region</option></select>
               </label>
-              <label>
-                Position <span class="required-mark">*</span>
+              <label>Position <span class="required-mark">*</span>
                 <select name="position" id="position" required>
                   <option value="">Select</option>
                   <option value="Student">Student</option>
@@ -68,13 +58,18 @@
                   <option value="Other">Other</option>
                 </select>
               </label>
-              <label id="otherPositionLabel" hidden>
-                Other position
+              <label id="otherPositionLabel" hidden>Other position
                 <input name="positionOther" id="positionOther" type="text" placeholder="Please specify" />
               </label>
-              <label>
-                E-mail address
-                <input name="email" type="email" autocomplete="email" placeholder="Optional" />
+              <label>E-mail address
+                <input name="email" id="email" type="email" autocomplete="email" placeholder="Optional" />
+              </label>
+              <label>Accommodation / Home Stay <span class="required-mark">*</span>
+                <select name="accommodationUse" id="accommodationUse" required>
+                  <option value="">Select</option>
+                  <option value="Yes">Yes, I used / will use accommodation or home stay</option>
+                  <option value="No">No, I did not / will not use accommodation or home stay</option>
+                </select>
               </label>
             </div>
           </fieldset>
@@ -83,18 +78,33 @@
             <legend>Participation period for certificate</legend>
             <p class="scale-note">Select the period that should appear on your Certificate of Participation.</p>
             <div class="form-grid two">
-              <label>
-                First participation date <span class="required-mark">*</span>
+              <label>First participation date <span class="required-mark">*</span>
                 <select name="participationStart" id="participationStart" required></select>
               </label>
-              <label>
-                Last participation date <span class="required-mark">*</span>
+              <label>Last participation date <span class="required-mark">*</span>
                 <select name="participationEnd" id="participationEnd" required></select>
               </label>
             </div>
             <p id="certificatePeriodPreview" class="period-preview" aria-live="polite"></p>
           </fieldset>
 
+          <div class="submit-panel next-panel">
+            <button id="nextButton" class="button primary" type="submit">Next</button>
+            <p id="participantStatus" class="submit-status" role="status" aria-live="polite"></p>
+          </div>
+        </form>
+      </section>
+    </section>
+
+    <section id="questionnaireView" class="view" aria-labelledby="questionnaireTitle" hidden>
+      <div class="page-hero">
+        <p class="eyebrow">SKYSEF 2026 Questionnaire</p>
+        <h1 id="questionnaireTitle">Please answer the questionnaire.</h1>
+        <p>Questions are adjusted according to your position, accommodation use, and participation dates.</p>
+      </div>
+
+      <section class="form-shell">
+        <form id="surveyForm" class="survey-form" novalidate>
           <fieldset class="form-card timeline-card">
             <legend>SKYSEF 2026 timeline</legend>
             <p class="scale-note">Use the schedule below to confirm the contents you attended.</p>
@@ -144,14 +154,13 @@
 
           <fieldset class="form-card">
             <legend>Comments and suggestions</legend>
-            <label class="block-label">
-              Please give your comments and suggestions to SKYSEF.
+            <label class="block-label">Please give your comments and suggestions to SKYSEF.
               <textarea name="comments" rows="6" placeholder="Please write your comments and suggestions."></textarea>
             </label>
           </fieldset>
 
           <div class="submit-panel">
-            <button id="submitButton" class="button primary" type="submit">Submit and create Certification for SKYSEF</button>
+            <button id="submitButton" class="button primary" type="submit">Submit</button>
             <p id="submitStatus" class="submit-status" role="status" aria-live="polite"></p>
           </div>
         </form>
@@ -161,24 +170,26 @@
     <section id="certificateView" class="view certificate-view" aria-labelledby="certificateTitle" hidden>
       <div class="page-hero result-hero no-print">
         <p class="eyebrow">Certificate of Participation</p>
-        <h1 id="certificateTitle">Your certificate has been created.</h1>
-        <p>
-          Your questionnaire response has been recorded, and the certificate PDF has been generated. The PDF is also saved in the private SKYSEF Drive folder.
-        </p>
+        <h1 id="certificateTitle">Your certificate is ready.</h1>
+        <p>Your questionnaire response has been recorded. The certificate is shown below.</p>
         <div class="certificate-actions">
-          <button id="downloadPdfButton" class="button primary" type="button">Download PDF again</button>
-          <button id="backToFormButton" class="button ghost-dark" type="button">Back to questionnaire</button>
+          <button id="downloadPdfButton" class="button primary" type="button">Download PDF</button>
+          <button id="backToQuestionnaireButton" class="button ghost-dark" type="button">Back to questionnaire</button>
         </div>
         <p id="pdfStatus" class="small-note" role="status" aria-live="polite"></p>
       </div>
 
       <div class="certificate-stage">
         <main id="certificatePage" class="certificate-page" aria-label="Certificate of Participation">
-          <div class="certificate-frame" aria-hidden="true"></div>
+          <div class="cert-accent cert-accent-top"></div>
+          <div class="cert-accent cert-accent-bottom"></div>
           <section class="certificate-content">
-            <img class="logo-skysef" src="assets/skysef-logo.jpeg" alt="SKYSEF" />
-            <h1 class="title">Certificate of<br><span>Participation</span></h1>
-            <p class="awarded">This Certificate is awarded to</p>
+            <div class="cert-logo-row">
+              <img class="logo-skysef" src="assets/skysef-logo.jpeg" alt="SKYSEF" />
+            </div>
+            <p class="cert-kicker">Shizuoka Kita Youth Science Engineering Forum 2026</p>
+            <h1 class="title"><span>Certificate</span><small>of Participation</small></h1>
+            <p class="awarded">This certificate is proudly awarded to</p>
             <div class="recipient">
               <div class="recipient-name" id="name">Name</div>
               <div class="recipient-school" id="school">School</div>
@@ -194,6 +205,7 @@
                 <div class="organizer-name">Shizuoka Kita Junior and Senior High<br>School</div>
               </div>
               <div class="signature-block">
+                <div class="signature-line"></div>
                 <div class="principal-name">Hisao Ohashi</div>
                 <div class="principal-title">Principal</div>
                 <img class="seal" src="assets/principal-seal.png" alt="Principal seal" />
