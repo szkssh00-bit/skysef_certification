@@ -197,26 +197,26 @@
   display: flex;
   justify-content: flex-end;
   align-items: flex-end;
-  padding-bottom: 2mm;
+  padding-bottom: 4mm;
 }
 
 .footer-right {
-  width: 120mm;
+  width: 86mm;
   margin-left: auto;
   text-align: right;
   display: flex;
-  flex-direction: row;
-  justify-content: flex-end;
+  flex-direction: column;
   align-items: flex-end;
-  gap: 5mm;
+  justify-content: flex-end;
+  gap: 3.2mm;
 }
 
 .organizer-block {
-  width: 62mm;
+  width: 86mm;
   display: flex;
   justify-content: flex-end;
   align-items: center;
-  gap: 3mm;
+  gap: 3.2mm;
 }
 
 .logo-school {
@@ -227,10 +227,10 @@
 }
 
 .organizer-name {
-  max-width: 41mm;
-  font-size: 13.6pt;
-  line-height: 1.06;
-  letter-spacing: .018em;
+  max-width: 63mm;
+  font-size: 14.2pt;
+  line-height: 1.08;
+  letter-spacing: .04em;
   text-transform: uppercase;
   font-weight: 900;
   color: #18314f;
@@ -239,14 +239,14 @@
 
 .signature-block {
   position: relative;
-  width: 42mm;
-  min-height: 23mm;
+  width: 62mm;
+  min-height: 19mm;
   transform: translateY(-10px);
   display: flex;
   flex-direction: column;
   align-items: flex-end;
-  justify-content: flex-end;
-  padding: 0 18mm 4.2mm 0;
+  justify-content: center;
+  padding: 0 18mm 0 0;
   border: 0 !important;
 }
 
@@ -259,7 +259,7 @@
 .principal-name {
   position: relative;
   z-index: 2;
-  font-size: 13.2pt;
+  font-size: 14.2pt;
   line-height: 1.05;
   font-weight: 900;
   color: #10243f;
@@ -270,8 +270,8 @@
 .principal-title {
   position: relative;
   z-index: 2;
-  margin-top: .8mm;
-  font-size: 11pt;
+  margin-top: .9mm;
+  font-size: 12pt;
   line-height: 1.05;
   font-weight: 800;
   color: #304b6e;
@@ -283,8 +283,8 @@
   z-index: 3;
   width: 20mm;
   height: 21mm;
-  right: 0;
-  bottom: 1mm;
+  right: -1mm;
+  top: -1.2mm;
   object-fit: contain;
   opacity: .76;
 }
