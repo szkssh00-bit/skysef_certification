@@ -350,50 +350,53 @@ function certificateHtml_(name, school, period) {
 <style>
   @page { size: A4 portrait; margin: 0; }
   html, body { margin:0; padding:0; width:210mm; height:297mm; background:#fff; }
-  .page { position:relative; width:210mm; height:297mm; overflow:hidden; color:#111827; background:linear-gradient(180deg,#ffffff 0%,#f7fbff 100%); font-family:"Segoe UI","Noto Sans",Arial,sans-serif; }
-  .page:before { content:""; position:absolute; inset:12mm; border:.8mm solid rgba(16,36,63,.86); border-radius:1.5mm; box-sizing:border-box; }
-  .page:after { content:""; position:absolute; inset:16mm; border:.35mm solid rgba(197,160,87,.75); box-sizing:border-box; }
-  .accent-top { position:absolute; top:-46mm; right:-34mm; width:142mm; height:96mm; border-radius:0 0 0 58mm; background:linear-gradient(135deg,rgba(24,166,200,.95),rgba(16,36,63,.98)); transform:rotate(-4deg); }
-  .accent-top:after { content:""; position:absolute; left:8mm; bottom:-8mm; width:112mm; height:18mm; border-radius:999px; background:rgba(197,160,87,.90); transform:rotate(-8deg); }
-  .accent-bottom { position:absolute; left:-54mm; bottom:-56mm; width:142mm; height:104mm; border-radius:0 72mm 0 0; background:linear-gradient(135deg,rgba(16,36,63,.96),rgba(19,95,159,.78)); transform:rotate(-3deg); }
-  .content { position:relative; z-index:1; height:100%; padding:28mm 26mm 25mm; text-align:center; box-sizing:border-box; }
-  .logo-row { width:100%; text-align:left; }
-  .skysef { width:58mm; max-height:24mm; object-fit:contain; }
-  .kicker { margin:22mm 0 0; color:#135f9f; text-transform:uppercase; font-size:10.5pt; letter-spacing:.15em; font-weight:900; }
-  h1 { margin:4mm 0 0; color:#10243f; line-height:1; letter-spacing:-.02em; }
-  h1 .big { display:block; font-family:Georgia,Cambria,serif; font-size:40pt; font-weight:700; }
-  h1 .small { display:block; margin-top:2mm; font-size:16pt; text-transform:uppercase; letter-spacing:.28em; color:#c5a057; font-weight:900; }
-  .awarded { margin:14mm 0 0; font-family:Georgia,Cambria,serif; font-size:13.8pt; color:#4b607a; }
-  .recipient { width:150mm; margin:6mm auto 0; padding:5mm 5mm 4.5mm; border-top:.35mm solid rgba(197,160,87,.72); border-bottom:.35mm solid rgba(197,160,87,.72); background:rgba(255,255,255,.72); }
-  .name { min-height:14mm; font-size:30pt; line-height:1.1; font-weight:900; color:#071a31; word-wrap:break-word; }
-  .school { min-height:8mm; margin-top:1.5mm; font-size:13.8pt; line-height:1.25; color:#33506d; font-weight:800; word-wrap:break-word; }
-  .desc { margin:11mm auto 0; width:148mm; font-family:Georgia,Cambria,serif; font-size:13.8pt; line-height:1.72; color:#18314f; }
-  .footer { position:absolute; left:27mm; right:27mm; bottom:25mm; display:table; width:156mm; }
-  .col { display:table-cell; width:50%; vertical-align:bottom; }
-  .org { text-align:left; padding-left:3mm; }
-  .school-logo { width:25mm; height:auto; margin-bottom:4mm; }
-  .org-name { font-size:11.2pt; line-height:1.28; font-weight:900; color:#18314f; }
-  .sig { position:relative; text-align:center; padding-right:4mm; height:40mm; }
-  .sig-line { position:absolute; left:12mm; right:12mm; bottom:24mm; height:.35mm; background:rgba(16,36,63,.70); }
-  .principal { position:absolute; left:0; right:0; bottom:7mm; }
-  .principal-name { font-size:16.5pt; line-height:1.1; font-weight:900; color:#10243f; }
-  .principal-title { margin-top:1mm; font-size:11.5pt; line-height:1.1; font-weight:800; color:#304b6e; }
-  .seal { position:absolute; width:22mm; height:23mm; right:5mm; bottom:6mm; opacity:.84; }
+  body { font-family:"Segoe UI","Noto Sans",Arial,sans-serif; color:#102033; }
+  .page { position:relative; width:210mm; height:297mm; overflow:hidden; color:#102033; background:radial-gradient(circle at 18% 16%,rgba(15,143,167,.07),transparent 34%),linear-gradient(180deg,#fff 0%,#f8fbff 100%); }
+  .page:before { content:""; position:absolute; inset:12mm; border:.7mm solid rgba(18,40,74,.80); border-radius:1.5mm; box-sizing:border-box; }
+  .page:after { content:""; position:absolute; inset:16mm; border:.32mm solid rgba(198,161,91,.78); box-sizing:border-box; }
+  .accent-top { position:absolute; top:-44mm; right:-34mm; width:134mm; height:88mm; border-radius:0 0 0 56mm; background:linear-gradient(135deg,rgba(17,136,161,.96),rgba(18,40,74,.98)); transform:rotate(-4deg); }
+  .accent-top:after { content:""; position:absolute; left:7mm; bottom:-7mm; width:108mm; height:15mm; border-radius:999px; background:rgba(198,161,91,.88); transform:rotate(-8deg); }
+  .accent-bottom { position:absolute; left:-52mm; bottom:-56mm; width:136mm; height:100mm; border-radius:0 70mm 0 0; background:linear-gradient(135deg,rgba(18,40,74,.96),rgba(18,102,154,.76)); transform:rotate(-3deg); }
+  .content { position:relative; z-index:1; height:100%; padding:26mm 25mm 22mm; text-align:center; box-sizing:border-box; display:flex; flex-direction:column; align-items:center; }
+  .logo-row { width:100%; text-align:left; min-height:22mm; }
+  .skysef { width:58mm; max-height:22mm; object-fit:contain; }
+  .kicker { margin:18mm 0 0; color:#12669a; text-transform:uppercase; font-size:10.5pt; letter-spacing:.13em; font-weight:800; line-height:1.35; }
+  h1 { margin:5mm 0 0; color:#12284a; line-height:1; letter-spacing:-.02em; }
+  h1 .big { display:block; font-family:"Segoe UI","Noto Sans",Arial,sans-serif; font-size:42pt; font-weight:900; letter-spacing:-.025em; }
+  h1 .small { display:block; margin-top:2mm; font-family:"Segoe UI","Noto Sans",Arial,sans-serif; font-size:15.2pt; text-transform:uppercase; letter-spacing:.28em; color:#c6a15b; font-weight:900; }
+  .awarded { margin:15mm 0 0; font-size:14.5pt; line-height:1.35; color:#516173; font-weight:500; }
+  .recipient { width:150mm; margin:6mm auto 0; padding:5mm 5mm 4.8mm; border-top:.35mm solid rgba(198,161,91,.78); border-bottom:.35mm solid rgba(198,161,91,.78); background:rgba(255,255,255,.74); }
+  .name { min-height:13mm; font-size:31pt; line-height:1.08; font-weight:900; color:#071a31; word-wrap:break-word; }
+  .school { min-height:8mm; margin-top:1.5mm; font-size:14pt; line-height:1.25; color:#33506d; font-weight:800; word-wrap:break-word; }
+  .desc { margin:11mm auto 0; width:150mm; font-size:15.4pt; line-height:1.62; color:#18314f; font-weight:500; }
+  .footer { width:150mm; margin-top:auto; padding-bottom:4mm; display:flex; justify-content:flex-end; align-items:flex-end; }
+  .footer-right { width:82mm; text-align:right; display:flex; flex-direction:column; align-items:flex-end; gap:5mm; }
+  .org { display:grid; grid-template-columns:20mm 1fr; align-items:center; column-gap:3.5mm; width:82mm; }
+  .school-logo { width:19mm; height:auto; object-fit:contain; justify-self:end; }
+  .org-name { font-size:9.8pt; line-height:1.25; letter-spacing:.04em; text-transform:uppercase; font-weight:800; color:#18314f; }
+  .sig { position:relative; width:78mm; min-height:29mm; display:flex; flex-direction:column; align-items:center; justify-content:flex-end; padding-bottom:2mm; }
+  .sig-line { width:62mm; height:.28mm; background:rgba(16,36,63,.62); margin-bottom:3mm; }
+  .principal-name { position:relative; z-index:2; font-size:16pt; line-height:1.1; font-weight:900; color:#10243f; text-align:center; }
+  .principal-title { position:relative; z-index:2; margin-top:1mm; font-size:10.8pt; line-height:1.1; font-weight:800; color:#304b6e; text-align:center; }
+  .seal { position:absolute; z-index:3; width:22mm; height:23mm; right:3mm; bottom:2mm; object-fit:contain; opacity:.78; }
 </style>
 </head>
 <body>
   <div class="page">
-    <div class="accent-top"></div><div class="accent-bottom"></div>
+    <div class="accent-top"></div>
+    <div class="accent-bottom"></div>
     <div class="content">
       <div class="logo-row"><img class="skysef" src="${CONFIG.LOGO_SKYSEF_URL}"></div>
       <div class="kicker">Shizuoka Kita Youth Science Engineering Forum 2026</div>
       <h1><span class="big">Certificate</span><span class="small">of Participation</span></h1>
       <p class="awarded">This certificate is proudly awarded to</p>
       <div class="recipient"><div class="name">${escapeHtml_(name)}</div><div class="school">${escapeHtml_(school)}</div></div>
-      <p class="desc">for participating in the Shizuoka Kita Youth Science Engineering Forum 2026,<br>held from ${escapeHtml_(period)},<br>hosted and organized by Shizuoka Kita Junior and Senior High School</p>
+      <p class="desc">for participating in the Shizuoka Kita Youth Science Engineering Forum 2026, held from ${escapeHtml_(period)}, hosted and organized by Shizuoka Kita Junior and Senior High School</p>
       <div class="footer">
-        <div class="col org"><img class="school-logo" src="${CONFIG.LOGO_SCHOOL_URL}"><div class="org-name">Shizuoka Kita Junior and Senior High<br>School</div></div>
-        <div class="col sig"><div class="sig-line"></div><div class="principal"><div class="principal-name">Hisao Ohashi</div><div class="principal-title">Principal</div></div><img class="seal" src="${CONFIG.SEAL_URL}"></div>
+        <div class="footer-right">
+          <div class="org"><img class="school-logo" src="${CONFIG.LOGO_SCHOOL_URL}"><div class="org-name">Shizuoka Kita Junior and Senior High School</div></div>
+          <div class="sig"><div class="sig-line"></div><div class="principal-name">Hisao Ohashi</div><div class="principal-title">Principal</div><img class="seal" src="${CONFIG.SEAL_URL}"></div>
+        </div>
       </div>
     </div>
   </div>

@@ -1,21 +1,20 @@
-# SKYSEF Certification System
+# SKYSEF Certification System v12
 
-GitHub Pages front end and Google Apps Script back end for the SKYSEF 2026 questionnaire and Certificate of Participation.
+This package keeps the fast user-facing algorithm from v11 and updates only the certificate layout and matching GAS fallback template.
 
-## Flow
+## Main changes
 
-1. Participant information is entered first.
-2. The user presses **Next**.
-3. The certificate PDF is generated in the background by Google Apps Script.
-4. The questionnaire is displayed.
-5. The user presses **Submit**.
-6. Questionnaire data is saved to Google Sheets.
-7. The already prepared PDF is displayed and downloaded.
+- Keeps the fast flow: Participant information -> Next -> browser-side certificate PDF preparation -> Questionnaire -> Submit -> immediate certificate view.
+- Redesigns the certificate using a cleaner modern portrait layout.
+- Removes unnecessary line breaks in the certificate description.
+- Moves the school logo and school name to the lower-right signature area.
+- Places Hisao Ohashi / Principal below the school block with the seal over the signature area.
+- Reduces mixed font use for a more consistent visual tone.
 
-## Published page
+## Required GAS update
 
-https://szkssh00-bit.github.io/skysef_certification/
+Paste `apps-script/Code.gs` into Apps Script and deploy a new version.
 
-## Apps Script endpoint
+## GitHub update
 
-https://script.google.com/macros/s/AKfycbx75wmiX9ikGILLPIgtjH7ggLnMAuM9zsFtNf4vqpCjx3eVeAmQHpYL4lMiVU5KnCEJ/exec
+Use `scripts/replace-local-repo-and-push.ps1` or the PowerShell commands provided in ChatGPT.

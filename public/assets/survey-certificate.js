@@ -1,5 +1,5 @@
 /* SKYSEF questionnaire -> background certificate PDF -> final record. */
-const SURVEY_ENDPOINT = "https://script.google.com/macros/s/AKfycbx75wmiX9ikGILLPIgtjH7ggLnMAuM9zsFtNf4vqpCjx3eVeAmQHpYL4lMiVU5KnCEJ/exec";
+const SURVEY_ENDPOINT = "https://script.google.com/macros/s/AKfycbzsKFw4St6VrZTxY5HM1xL8UahHLAeW30zupyBvRAO-6patt8DaZ7Hx3beIee2J-VQ/exec";
 
 const SCHOOLS = [
   { school: "West Moreton Anglican College", country: "Australia" },
@@ -185,7 +185,7 @@ function updatePeriodPreview() {
   if (start && end && start > end) $("participationEnd").value = start;
   const text = getParticipationPeriodText();
   $("certificatePeriodPreview").textContent = `Certificate text: held from ${text}`;
-  $("certificateDescription").innerHTML = `for participating in the Shizuoka Kita Youth Science Engineering Forum 2026,<br>held from ${text},<br>hosted and organized by Shizuoka Kita Junior and Senior High School`;
+  $("certificateDescription").textContent = `for participating in the Shizuoka Kita Youth Science Engineering Forum 2026, held from ${text}, hosted and organized by Shizuoka Kita Junior and Senior High School`;
   updateDynamicQuestionnaire();
 }
 function applyCertificateText() {
@@ -491,11 +491,13 @@ async function generatePdfInBrowser() {
   const source = $("certificatePage");
   const clone = source.cloneNode(true);
   clone.id = "certificatePageForPdf";
+  clone.classList.add("pdf-render");
   clone.style.width = "210mm";
   clone.style.height = "297mm";
   clone.style.maxWidth = "none";
   clone.style.transform = "none";
   const holder = document.createElement("div");
+  holder.className = "pdf-render-host";
   holder.style.position = "fixed";
   holder.style.left = "-10000px";
   holder.style.top = "0";
