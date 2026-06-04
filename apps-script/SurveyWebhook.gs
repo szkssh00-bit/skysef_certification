@@ -153,6 +153,36 @@ function doPost(e) {
       });
     }
 
+    if (mode === 'uploadPdf') {
+      const uploaded = saveUploadedPdf_(data);
+      const pdfData = {
+        submissionId: data.submissionId,
+        driveFileId: uploaded.getId(),
+        driveFileName: uploaded.getName(),
+        driveFileUrl: uploaded.getUrl(),
+        status: 'certificate_uploaded',
+        errorMessage: '',
+        lastUpdatedAt: new Date().toISOString()
+      };
+      const lockUpload = LockService.getScriptLock();
+      try {
+        lockUpload.waitLock(30000);
+        rowNumber = findSubmissionRow_(sheet, data.submissionId) || rowNumber || appendRowPartial_(sheet, data);
+        updateRowPartial_(sheet, rowNumber, pdfData);
+        SpreadsheetApp.flush();
+      } finally {
+        try { lockUpload.releaseLock(); } catch (err) {}
+      }
+      return json_({
+        ok: true,
+        mode: 'uploadPdf',
+        submissionId: data.submissionId,
+        driveFileId: uploaded.getId(),
+        driveFileUrl: uploaded.getUrl(),
+        fileName: uploaded.getName()
+      });
+    }
+
     if (mode !== 'createPdf') {
       throw new Error('Invalid mode: ' + mode);
     }
@@ -286,6 +316,15 @@ function updateRowPartial_(sheet, rowNumber, data) {
 function valueForHeader_(header, data) {
   const key = HEADER_MAP[header] || header;
   return data[key] == null ? '' : data[key];
+}
+
+function saveUploadedPdf_(data) {
+  if (!data.pdfBase64) throw new Error('No PDF data was received.');
+  const bytes = Utilities.base64Decode(String(data.pdfBase64));
+  const fileName = fileSafe_(data.fileName || ('SKYSEF2026_Certificate_' + data.name + '.pdf'));
+  const blob = Utilities.newBlob(bytes, data.mimeType || MimeType.PDF, fileName);
+  const folder = DriveApp.getFolderById(CONFIG.DRIVE_FOLDER_ID);
+  return folder.createFile(blob).setName(fileName);
 }
 
 function savePdfToDrive_(blob, fileName) {

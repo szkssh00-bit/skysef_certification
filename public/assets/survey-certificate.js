@@ -1,5 +1,5 @@
 /* SKYSEF questionnaire -> background certificate PDF -> final record. */
-const SURVEY_ENDPOINT = "https://script.google.com/macros/s/AKfycbxrMaQEmrGdcLZ1h4FFnGoU8-t6FRjXBxl6_uFb-pyJqs3-iXEwNp5RRep7NMRH5zLX/exec";
+const SURVEY_ENDPOINT = "https://script.google.com/macros/s/AKfycbx75wmiX9ikGILLPIgtjH7ggLnMAuM9zsFtNf4vqpCjx3eVeAmQHpYL4lMiVU5KnCEJ/exec";
 
 const SCHOOLS = [
   { school: "West Moreton Anglican College", country: "Australia" },
@@ -97,6 +97,8 @@ const TEACHER_QUESTIONS = [
 let submissionId = null;
 let latestPdf = null;
 let pdfPromise = null;
+let uploadPromise = null;
+let recordPromise = null;
 let participantDataSnapshot = null;
 const $ = (id) => document.getElementById(id);
 
@@ -198,20 +200,19 @@ function base64ToBlob(base64, mimeType = "application/pdf") {
   return new Blob([bytes], { type: mimeType });
 }
 function downloadLatestPdf() {
-  if (!latestPdf || !latestPdf.base64) {
-    $("pdfStatus").textContent = "PDF data is not ready yet. Please wait a moment and press Download PDF.";
+  if (!latestPdf || !latestPdf.blob) {
+    $("pdfStatus").textContent = "Preparing the certificate PDF in this browser.";
     return;
   }
-  const blob = base64ToBlob(latestPdf.base64, latestPdf.mimeType || "application/pdf");
-  const url = URL.createObjectURL(blob);
+  const url = latestPdf.url || URL.createObjectURL(latestPdf.blob);
+  latestPdf.url = url;
   const a = document.createElement("a");
   a.href = url;
   a.download = latestPdf.fileName || `SKYSEF2026_Certificate_${sanitizeFileName($("inputName").value)}.pdf`;
   document.body.appendChild(a);
   a.click();
   a.remove();
-  setTimeout(() => URL.revokeObjectURL(url), 30000);
-  $("pdfStatus").textContent = "PDF download started. Please check your browser download list.";
+  $("pdfStatus").textContent = "PDF is ready. If the download did not start, press Download PDF again.";
 }
 function renderSelectOptions() {
   SCHOOLS.forEach(({ school }) => {
@@ -458,24 +459,97 @@ async function postWithRetry(data, attempts = 4) {
   }
   throw lastError;
 }
-function setPdfFromResult(result) {
-  if (!result || !result.pdfBase64) return;
-  latestPdf = {
-    base64: result.pdfBase64,
-    fileName: result.fileName || `SKYSEF2026_Certificate_${sanitizeFileName($("inputName").value)}.pdf`,
-    mimeType: result.mimeType || "application/pdf"
-  };
+function blobToBase64(blob) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(String(reader.result).split(",")[1] || "");
+    reader.onerror = reject;
+    reader.readAsDataURL(blob);
+  });
+}
+function waitForImages(root) {
+  const images = Array.from(root.querySelectorAll("img"));
+  return Promise.all(images.map((img) => {
+    if (img.complete && img.naturalWidth > 0) return Promise.resolve();
+    return new Promise((resolve) => {
+      img.onload = resolve;
+      img.onerror = resolve;
+    });
+  }));
+}
+function setDownloadReadyState(ready) {
+  const button = $("downloadPdfButton");
+  if (!button) return;
+  button.disabled = !ready;
+  button.textContent = ready ? "Download PDF" : "Preparing PDF...";
+}
+async function generatePdfInBrowser() {
+  if (!window.html2canvas || !window.jspdf || !window.jspdf.jsPDF) {
+    throw new Error("PDF libraries are still loading. Please wait a moment.");
+  }
+  applyCertificateText();
+  const source = $("certificatePage");
+  const clone = source.cloneNode(true);
+  clone.id = "certificatePageForPdf";
+  clone.style.width = "210mm";
+  clone.style.height = "297mm";
+  clone.style.maxWidth = "none";
+  clone.style.transform = "none";
+  const holder = document.createElement("div");
+  holder.style.position = "fixed";
+  holder.style.left = "-10000px";
+  holder.style.top = "0";
+  holder.style.width = "210mm";
+  holder.style.height = "297mm";
+  holder.style.background = "#ffffff";
+  holder.appendChild(clone);
+  document.body.appendChild(holder);
+  await waitForImages(holder);
+  await new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve)));
+  const canvas = await html2canvas(clone, {
+    scale: Math.min(2.4, window.devicePixelRatio || 2),
+    backgroundColor: "#ffffff",
+    useCORS: true,
+    allowTaint: true,
+    logging: false
+  });
+  holder.remove();
+  const imgData = canvas.toDataURL("image/jpeg", 0.96);
+  const pdf = new window.jspdf.jsPDF({ orientation: "portrait", unit: "mm", format: "a4", compress: true });
+  pdf.addImage(imgData, "JPEG", 0, 0, 210, 297);
+  const fileName = `SKYSEF2026_Certificate_${sanitizeFileName(participantDataSnapshot.name)}_${sanitizeFileName(participantDataSnapshot.participationPeriodText)}.pdf`;
+  const blob = pdf.output("blob");
+  return { blob, fileName, mimeType: "application/pdf" };
+}
+async function uploadPdfToDrive(pdf) {
+  const pdfBase64 = await blobToBase64(pdf.blob);
+  return postWithRetry({
+    ...participantDataSnapshot,
+    mode: "uploadPdf",
+    pdfBase64,
+    fileName: pdf.fileName,
+    mimeType: pdf.mimeType
+  }, 3);
 }
 function startBackgroundPdf() {
   latestPdf = null;
-  pdfPromise = postWithRetry({ ...participantDataSnapshot, mode: "createPdf" }, 3)
-    .then((result) => {
-      setPdfFromResult(result);
-      return result;
+  setDownloadReadyState(false);
+  pdfPromise = generatePdfInBrowser()
+    .then((pdf) => {
+      latestPdf = { ...pdf, url: URL.createObjectURL(pdf.blob) };
+      setDownloadReadyState(true);
+      if ($("pdfStatus")) $("pdfStatus").textContent = "PDF is ready.";
+      uploadPromise = uploadPdfToDrive(pdf).catch((error) => {
+        console.error(error);
+        if ($("pdfStatus")) $("pdfStatus").textContent = "PDF is ready in this browser. Drive upload is still retrying.";
+        throw error;
+      });
+      return pdf;
     })
     .catch((error) => {
       console.error(error);
       setStatus("participantStatus", `Certificate PDF preparation is delayed: ${error.message}`, "error");
+      if ($("pdfStatus")) $("pdfStatus").textContent = `PDF preparation is delayed: ${error.message}`;
       throw error;
     });
 }
@@ -526,31 +600,29 @@ async function handleSubmit(event) {
     return;
   }
   setButtonBusy($("submitButton"), true, "Submitting...", "Submit");
-  setStatus("submitStatus", "Submitting your questionnaire response.");
-  try {
-    const data = collectFullData();
-    await postWithRetry({ ...data, mode: "recordOnly" }, 5);
-    setStatus("submitStatus", "Response recorded.", "ok");
-    showCertificateView();
-    $("pdfStatus").textContent = latestPdf ? "PDF is ready. Download will start automatically." : "Waiting for PDF prepared in the background.";
-    if (!latestPdf && pdfPromise) {
-      try {
-        const result = await pdfPromise;
-        setPdfFromResult(result);
-      } catch (error) {
-        $("pdfStatus").textContent = `PDF generation is delayed: ${error.message}. Please contact SKYSEF staff if it does not finish.`;
-      }
-    }
-    if (latestPdf) {
-      $("pdfStatus").textContent = "PDF is ready. Download will start automatically.";
-      setTimeout(downloadLatestPdf, 250);
-    }
-  } catch (error) {
-    console.error(error);
-    setStatus("submitStatus", `Submission failed: ${error.message}. Please try again.`, "error");
-  } finally {
-    setButtonBusy($("submitButton"), false, "Submitting...", "Submit");
+  const data = collectFullData();
+  showCertificateView();
+  setDownloadReadyState(!!(latestPdf && latestPdf.blob));
+  $("pdfStatus").textContent = latestPdf ? "PDF is ready." : "Preparing the PDF in this browser.";
+  recordPromise = postWithRetry({ ...data, mode: "recordOnly" }, 5)
+    .then(() => {
+      $("pdfStatus").textContent = latestPdf ? "Response recorded. PDF is ready." : "Response recorded. Preparing the PDF in this browser.";
+      return true;
+    })
+    .catch((error) => {
+      console.error(error);
+      $("pdfStatus").textContent = `The certificate is available in this browser, but questionnaire recording failed: ${error.message}. Please contact SKYSEF staff.`;
+      return false;
+    });
+  if (!latestPdf && pdfPromise) {
+    pdfPromise.then(() => {
+      setDownloadReadyState(true);
+      $("pdfStatus").textContent = "PDF is ready.";
+    }).catch((error) => {
+      $("pdfStatus").textContent = `PDF preparation is delayed: ${error.message}`;
+    });
   }
+  setButtonBusy($("submitButton"), false, "Submitting...", "Submit");
 }
 function init() {
   renderSelectOptions();

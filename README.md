@@ -18,4 +18,4 @@ https://szkssh00-bit.github.io/skysef_certification/
 
 ## Apps Script endpoint
 
-https://script.google.com/macros/s/AKfycbxrMaQEmrGdcLZ1h4FFnGoU8-t6FRjXBxl6_uFb-pyJqs3-iXEwNp5RRep7NMRH5zLX/exec
+https://script.google.com/macros/s/AKfycbx75wmiX9ikGILLPIgtjH7ggLnMAuM9zsFtNf4vqpCjx3eVeAmQHpYL4lMiVU5KnCEJ/exec
