@@ -38,13 +38,6 @@
         </div>
       </div>
 
-      <section class="notice-card" aria-label="Certificate information">
-        <h2>Private PDF generation</h2>
-        <p>
-          After your response is safely accepted by the server, an individual Certificate of Participation PDF will be generated and downloaded. The PDF is saved in the private SKYSEF Drive folder and is not published on GitHub Pages.
-        </p>
-      </section>
-
       <section class="form-shell">
         <form id="surveyForm" class="survey-form" novalidate>
           <fieldset class="form-card participant-card">
@@ -120,15 +113,15 @@
             <div class="split-grid">
               <div>
                 <h3>Items that you liked about SKYSEF 2026</h3>
-                <label>1.<input name="liked_1" type="text" /></label>
-                <label>2.<input name="liked_2" type="text" /></label>
-                <label>3.<input name="liked_3" type="text" /></label>
+                <label>1.<select name="liked_1" class="item-select"><option value="">Select item</option></select></label>
+                <label>2.<select name="liked_2" class="item-select"><option value="">Select item</option></select></label>
+                <label>3.<select name="liked_3" class="item-select"><option value="">Select item</option></select></label>
               </div>
               <div>
                 <h3>Items that you think SKYSEF 2026 should be improved</h3>
-                <label>1.<input name="improved_1" type="text" /></label>
-                <label>2.<input name="improved_2" type="text" /></label>
-                <label>3.<input name="improved_3" type="text" /></label>
+                <label>1.<select name="improved_1" class="item-select"><option value="">Select item</option></select></label>
+                <label>2.<select name="improved_2" class="item-select"><option value="">Select item</option></select></label>
+                <label>3.<select name="improved_3" class="item-select"><option value="">Select item</option></select></label>
               </div>
             </div>
           </fieldset>
@@ -158,7 +151,7 @@
           </fieldset>
 
           <div class="submit-panel">
-            <button id="submitButton" class="button primary" type="submit">Submit and create PDF</button>
+            <button id="submitButton" class="button primary" type="submit">Submit and create Certification for SKYSEF</button>
             <p id="submitStatus" class="submit-status" role="status" aria-live="polite"></p>
           </div>
         </form>

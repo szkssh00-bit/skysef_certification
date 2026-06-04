@@ -1,9 +1,9 @@
 # PowerShell update
 
 ```powershell
-$ZipPath = "C:\Users\SSH2026\Downloads\skysef_certification_complete_v5.zip"
+$ZipPath = "C:\Users\SSH2026\Downloads\skysef_certification_complete_v6.zip"
 $RepoPath = "C:\Users\SSH2026\Downloads\skysef_certification"
-$TempPath = "C:\Users\SSH2026\Downloads\skysef_certification_complete_v5_temp"
+$TempPath = "C:\Users\SSH2026\Downloads\skysef_certification_complete_v6_temp"
 $RepoUrl = "https://github.com/szkssh00-bit/skysef_certification.git"
 
 if (Test-Path $TempPath) { Remove-Item $TempPath -Recurse -Force }
@@ -35,6 +35,6 @@ New-Item -ItemType Directory -Force -Path ".github\workflows" | Out-Null
 Copy-Item -Path "$($SourceRoot.FullName)\.github\workflows\pages.yml" -Destination ".\.github\workflows\pages.yml" -Force
 
 git add .
-git commit -m "Update SKYSEF questionnaire and certificate v5"
+git commit -m "Update SKYSEF questionnaire and certificate v6"
 git push
 ```

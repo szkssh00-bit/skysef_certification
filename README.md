@@ -4,7 +4,7 @@ This repository provides a GitHub Pages front end and Google Apps Script backend
 
 ## Main features
 
-This v5 build fixes the mobile vertical layout, server-side date limits, certificate-period reflection, and spreadsheet column mapping.
+This v6 build fixes the mobile vertical layout, server-side date limits, certificate-period reflection, and spreadsheet column mapping.
 
 
 - Questionnaire is shown first.
@@ -37,3 +37,11 @@ apps-script/Code.gs
 ## Deploy
 
 Push the repository to GitHub. GitHub Actions deploys `public/` to GitHub Pages.
+
+
+## v6 updates
+- The questionnaire contents are shown dynamically according to the selected participation period.
+- Program questions outside the selected period are hidden and not required.
+- Teacher-only questions remain hidden for students.
+- Liked / improvement items are now dropdowns based on the selected participation period.
+- The submit button text is: Submit and create Certification for SKYSEF.

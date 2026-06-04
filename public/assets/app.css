@@ -377,3 +377,75 @@ input:focus, select:focus, textarea:focus {
     padding: 14px;
   }
 }
+
+/* v6: dynamic questionnaire and stronger mobile vertical layout */
+.is-question-hidden { display: none !important; }
+.item-select { cursor: pointer; }
+@media (max-width: 780px) {
+  .page-hero {
+    margin-left: 0;
+    margin-right: 0;
+    padding: 32px 20px;
+  }
+  .page-hero p:last-child {
+    font-size: 16px;
+    line-height: 1.75;
+  }
+  .hero-facts span {
+    width: 100%;
+    min-height: 46px;
+    justify-content: center;
+  }
+  .survey-form {
+    gap: 26px;
+  }
+  .form-card {
+    padding: 26px 18px;
+  }
+  .form-grid {
+    gap: 20px;
+  }
+  label {
+    font-size: 16px;
+  }
+  input, select, textarea {
+    min-height: 64px;
+    font-size: 17px;
+  }
+  textarea {
+    min-height: 150px;
+  }
+  .question-item {
+    padding: 22px 16px;
+  }
+  .question-title {
+    font-size: 17px;
+    line-height: 1.62;
+  }
+  .rating-row label {
+    min-height: 66px;
+    font-size: 20px;
+  }
+  .split-grid > div {
+    gap: 16px;
+  }
+  .split-grid h3 {
+    font-size: 17px;
+    line-height: 1.55;
+  }
+  .submit-panel {
+    position: sticky;
+    bottom: 10px;
+    gap: 12px;
+  }
+  .submit-status {
+    font-size: 14px;
+    line-height: 1.55;
+  }
+}
+@media (max-width: 420px) {
+  main { width: calc(100% - 10px); }
+  .form-card { padding: 24px 14px; }
+  .question-item { padding: 20px 13px; }
+  .rating-row label { min-height: 68px; }
+}

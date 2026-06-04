@@ -62,20 +62,29 @@ const TIMELINE = {
   ]
 };
 const PROGRAM_QUESTIONS = [
-  "Opening Ceremony (Aug. 2)",
-  "Keynote Address (Aug. 2)",
-  "Welcome Reception / Cultural Performance I (Aug. 2)",
-  "Cultural Performance II (Aug. 5)",
-  "Poster Session (Aug. 3)",
-  "Oral Presentation (Aug. 3)",
-  "International Joint Project (Aug. 4 and Aug. 5)",
-  "For teachers: Guided Tour (Aug. 4)",
-  "For teachers: Teachers’ Session (Aug. 4)",
-  "Commendation Ceremony (Aug. 5)",
-  "Closing Ceremony (Aug. 5)",
-  "Accommodation / Home Stay",
-  "Transportation",
-  "Schedule"
+  { text: "Opening Ceremony (Aug. 2)", dates: ["2026-08-02"], teacherOnly: false },
+  { text: "Keynote Address (Aug. 2)", dates: ["2026-08-02"], teacherOnly: false },
+  { text: "Welcome Reception / Cultural Performance I (Aug. 2)", dates: ["2026-08-02"], teacherOnly: false },
+  { text: "Cultural Performance II (Aug. 5)", dates: ["2026-08-05"], teacherOnly: false },
+  { text: "Poster Session (Aug. 3)", dates: ["2026-08-03"], teacherOnly: false },
+  { text: "Oral Presentation (Aug. 3)", dates: ["2026-08-03"], teacherOnly: false },
+  { text: "International Joint Project (Aug. 4 and Aug. 5)", dates: ["2026-08-04", "2026-08-05"], teacherOnly: false },
+  { text: "For teachers: Guided Tour (Aug. 4)", dates: ["2026-08-04"], teacherOnly: true },
+  { text: "For teachers: Teachers’ Session (Aug. 4)", dates: ["2026-08-04"], teacherOnly: true },
+  { text: "Commendation Ceremony (Aug. 5)", dates: ["2026-08-05"], teacherOnly: false },
+  { text: "Closing Ceremony (Aug. 5)", dates: ["2026-08-05"], teacherOnly: false },
+  { text: "Accommodation / Home Stay", dates: ["2026-08-02", "2026-08-03", "2026-08-04", "2026-08-05"], teacherOnly: false, general: true },
+  { text: "Transportation", dates: ["2026-08-02", "2026-08-03", "2026-08-04", "2026-08-05"], teacherOnly: false, general: true },
+  { text: "Schedule", dates: ["2026-08-02", "2026-08-03", "2026-08-04", "2026-08-05"], teacherOnly: false, general: true }
+];
+const ITEM_EXTRA_OPTIONS = [
+  "Research discussion",
+  "Scientific English communication",
+  "International exchange",
+  "Friendship and networking",
+  "Venue and facilities",
+  "Food and reception",
+  "Other"
 ];
 const LEARNING_QUESTIONS = [
   { text: "I was inspired to engage more in the discussion.", sub: [
@@ -137,6 +146,49 @@ function getParticipationPeriodText() {
   if (start === end) return selectedDateLabel(start);
   return `${selectedDateShort(start)} to ${selectedDateShort(end)}, 2026`;
 }
+function isDateInSelectedPeriod(dateValue) {
+  const start = $("participationStart").value;
+  const end = $("participationEnd").value;
+  if (!start || !end) return true;
+  return dateValue >= start && dateValue <= end;
+}
+function isProgramVisible(question) {
+  const isTeacher = $("position").value === "Teacher";
+  if (question.teacherOnly && !isTeacher) return false;
+  return question.dates.some(isDateInSelectedPeriod);
+}
+function setQuestionEnabled(item, enabled, required) {
+  item.hidden = !enabled;
+  item.classList.toggle("is-question-hidden", !enabled);
+  item.querySelectorAll("input, textarea, select").forEach((control) => {
+    control.disabled = !enabled;
+    if (control.type === "radio") control.required = enabled && required;
+  });
+}
+function updateItemSelectOptions() {
+  const options = [];
+  PROGRAM_QUESTIONS.forEach((q) => {
+    if (isProgramVisible(q)) options.push(q.text);
+  });
+  ITEM_EXTRA_OPTIONS.forEach((label) => {
+    if (!options.includes(label)) options.push(label);
+  });
+  document.querySelectorAll("select.item-select").forEach((select) => {
+    const current = select.value;
+    select.innerHTML = '<option value="">Select item</option>' + options.map((label) => `<option value="${label.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;")}">${label}</option>`).join("");
+    if ([...select.options].some((option) => option.value === current)) select.value = current;
+  });
+}
+function updateDynamicQuestionnaire() {
+  document.querySelectorAll(".program-question").forEach((item) => {
+    const index = Number(item.dataset.index);
+    const q = PROGRAM_QUESTIONS[index];
+    const visible = isProgramVisible(q);
+    const required = visible;
+    setQuestionEnabled(item, visible, required);
+  });
+  updateItemSelectOptions();
+}
 function updatePeriodPreview() {
   const start = $("participationStart").value;
   const end = $("participationEnd").value;
@@ -146,6 +198,7 @@ function updatePeriodPreview() {
   const text = getParticipationPeriodText();
   $("certificatePeriodPreview").textContent = `Certificate text: held from ${text}`;
   $("certificateDescription").innerHTML = `for participating in the Shizuoka Kita Youth Science Engineering Forum 2026,<br>held from ${text},<br>hosted and organized by Shizuoka Kita Junior and Senior High School`;
+  updateDynamicQuestionnaire();
 }
 function applyCertificateText() {
   $("name").textContent = safeText($("inputName").value, "Name");
@@ -264,9 +317,10 @@ function appendSubQuestions(wrapper, subQuestions) {
 }
 function renderQuestions() {
   PROGRAM_QUESTIONS.forEach((q, i) => {
-    const isTeacherOnly = q.toLowerCase().includes("for teachers");
-    const item = makeRatingQuestion(q, `program_${i + 1}`, !isTeacherOnly, `(${i + 1}) `);
-    if (isTeacherOnly) item.classList.add("teacher-program-question");
+    const item = makeRatingQuestion(q.text, `program_${i + 1}`, !q.teacherOnly, `(${i + 1}) `);
+    item.classList.add("program-question");
+    item.dataset.index = String(i);
+    if (q.teacherOnly) item.classList.add("teacher-program-question");
     $("programQuestions").appendChild(item);
   });
   LEARNING_QUESTIONS.forEach((q, i) => {
@@ -332,7 +386,8 @@ function toggleConditionalBlocks() {
   setRequiredIn("#teacherOnlyBlock", isTeacher);
   $("otherPositionLabel").hidden = !isOther;
   $("positionOther").required = isOther;
-  document.querySelectorAll(".teacher-program-question input").forEach((input) => { input.required = isTeacher; });
+  document.querySelectorAll(".teacher-program-question input").forEach((input) => { input.required = isTeacher && !input.closest(".program-question").hidden; });
+  updateDynamicQuestionnaire();
 }
 function syncCountryFromSchool() {
   const selected = SCHOOLS.find((item) => item.school === $("inputSchool").value);
@@ -371,7 +426,7 @@ function collectFormData() {
     comments: fd.get("comments") || ""
   };
   PROGRAM_QUESTIONS.forEach((q, i) => {
-    data[`program_${i + 1}_question`] = q;
+    data[`program_${i + 1}_question`] = q.text;
     data[`program_${i + 1}_score`] = fd.get(`program_${i + 1}`) || "";
   });
   LEARNING_QUESTIONS.forEach((q, i) => {
@@ -442,7 +497,7 @@ function showQuestionnaireView() {
 function setSubmitting(isSubmitting) {
   const button = $("submitButton");
   button.disabled = isSubmitting;
-  button.textContent = isSubmitting ? "Recording and creating PDF..." : "Submit and create PDF";
+  button.textContent = isSubmitting ? "Recording and creating Certification..." : "Submit and create Certification for SKYSEF";
   document.querySelectorAll("#surveyForm input, #surveyForm select, #surveyForm textarea, #surveyForm button").forEach((el) => {
     if (el.id !== "submitButton") el.disabled = isSubmitting;
   });
