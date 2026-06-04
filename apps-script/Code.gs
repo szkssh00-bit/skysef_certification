@@ -603,17 +603,17 @@ function certificateHtml_(name, school, period) {
   .recipient { width:150mm; margin:6mm auto 0; padding:5mm 5mm 4.8mm; border-top:.35mm solid rgba(197,160,87,.72); border-bottom:.35mm solid rgba(197,160,87,.72); background:rgba(255,255,255,.82); }
   .name { min-height:13mm; display:flex; align-items:center; justify-content:center; font-size:31pt; line-height:1.08; font-weight:900; color:#071a31; word-wrap:break-word; }
   .school { min-height:8mm; display:flex; align-items:center; justify-content:center; margin-top:1.5mm; font-size:14pt; line-height:1.25; color:#33506d; font-weight:800; word-wrap:break-word; }
-  .desc { margin:10.5mm auto 0; width:150mm; font-size:15.2pt; line-height:1.58; color:#18314f; font-weight:500; }
+  .desc { margin:10.5mm auto 0; width:150mm; font-size:15.2pt; line-height:1.58; color:#18314f; font-weight:500; text-align:left; }
   .footer { width:150mm; margin-top:auto; padding-bottom:4mm; display:flex; justify-content:flex-end; align-items:flex-end; }
-  .footer-right { width:86mm; margin-left:auto; text-align:right; display:flex; flex-direction:column; justify-content:flex-end; align-items:flex-end; gap:3.2mm; }
-  .org { width:86mm; display:flex; justify-content:flex-end; align-items:center; gap:3.2mm; }
+  .footer-right { width:90mm; margin-left:auto; text-align:right; display:flex; flex-direction:column; justify-content:flex-end; align-items:flex-end; gap:2.2mm; }
+  .org { width:90mm; display:flex; justify-content:flex-end; align-items:center; gap:3mm; }
   .school-logo { width:17mm; height:auto; object-fit:contain; flex:0 0 auto; }
-  .org-name { max-width:63mm; font-size:14.2pt; line-height:1.08; letter-spacing:.04em; text-transform:uppercase; font-weight:900; color:#18314f; text-align:right; }
-  .sig { position:relative; width:62mm; min-height:19mm; display:flex; flex-direction:column; align-items:flex-end; justify-content:center; padding:0 18mm 0 0; border:0 !important; transform:translateY(-10px); }
+  .org-name { width:58mm; max-width:58mm; font-size:13.8pt; line-height:1.08; letter-spacing:.035em; text-transform:uppercase; font-weight:900; color:#18314f; text-align:left; }
+  .sig { position:relative; width:90mm; min-height:18mm; display:flex; flex-direction:column; align-items:flex-end; justify-content:center; padding:0 23mm 0 0; border:0 !important; transform:translateY(-10px); }
   .sig:before, .sig:after { content:none !important; display:none !important; }
-  .principal-name { position:relative; z-index:2; font-size:14.2pt; line-height:1.05; font-weight:900; color:#10243f; text-align:right; white-space:nowrap; }
-  .principal-title { position:relative; z-index:2; margin-top:.9mm; font-size:12pt; line-height:1.05; font-weight:800; color:#304b6e; text-align:right; }
-  .seal { position:absolute; z-index:3; width:20mm; height:21mm; right:-1mm; top:-1.2mm; object-fit:contain; opacity:.76; }
+  .principal-name { position:relative; z-index:2; width:58mm; font-size:13.8pt; line-height:1.05; font-weight:900; color:#10243f; text-align:left; white-space:nowrap; }
+  .principal-title { position:relative; z-index:2; width:58mm; margin-top:.9mm; font-size:11.8pt; line-height:1.05; font-weight:800; color:#304b6e; text-align:left; }
+  .seal { position:absolute; z-index:3; width:20mm; height:21mm; right:1mm; top:-1.2mm; object-fit:contain; opacity:.76; }
 </style>
 </head>
 <body>
@@ -628,7 +628,7 @@ function certificateHtml_(name, school, period) {
       <div class="recipient"><div class="name">${escapeHtml_(name)}</div><div class="school">${escapeHtml_(school)}</div></div>
       <p class="desc">for participating in the Shizuoka Kita Youth Science Engineering Forum 2026, held from ${escapeHtml_(period)}, hosted and organized by Shizuoka Kita Junior and Senior High School</p>
       <div class="footer"><div class="footer-right">
-        <div class="org"><img class="school-logo" src="${CONFIG.LOGO_SCHOOL_URL}"><div class="org-name">Shizuoka Kita Junior and Senior High School</div></div>
+        <div class="org"><img class="school-logo" src="${CONFIG.LOGO_SCHOOL_URL}"><div class="org-name">Shizuoka Kita Junior and<br>Senior High School</div></div>
         <div class="sig"><div class="principal-name">Hisao Ohashi</div><div class="principal-title">Principal</div><img class="seal" src="${CONFIG.SEAL_URL}"></div>
       </div></div>
     </div>

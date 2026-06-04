@@ -1,5 +1,5 @@
 /* SKYSEF questionnaire -> background certificate PDF -> final record. */
-const SURVEY_ENDPOINT = "https://script.google.com/macros/s/AKfycbwf88YtbvhQt-wEhN0XUjKYPCBKR6dIHfVA8lWT2YRvEsoUvAnabgEM2QXok3El8pJd/exec";
+const SURVEY_ENDPOINT = "https://script.google.com/macros/s/AKfycbz-jiOmdy81v1rjuN8xuOlHr4waH1i6VGzsmnpEK3_609oOW3_zhfgpC4ERa7KZOuP4/exec";
 const ADMIN_PASSWORD_CLIENT = "set";
 let remoteConfigLoaded = false;
 
@@ -63,6 +63,8 @@ let TIMELINE = {
     ["15:45-16:00", "Closing Ceremony 閉会式", "Main Hall - Ocean, 1F"]
   ]
 };
+
+const DEFAULT_TIMELINE = JSON.parse(JSON.stringify(TIMELINE));
 let PROGRAM_QUESTIONS = [
   { text: "Opening Ceremony (Aug. 2)", dates: ["2026-08-02"], teacherOnly: false },
   { text: "Keynote Address (Aug. 2)", dates: ["2026-08-02"], teacherOnly: false },
@@ -245,25 +247,42 @@ function renderSelectOptions() {
   $("participationStart").value = selectableDates[0].value;
   $("participationEnd").value = selectableDates[selectableDates.length - 1].value;
 }
+function normalizeTimelineRow(row) {
+  if (Array.isArray(row)) return [row[0] || "", row[1] || "", row[2] || ""];
+  if (row && typeof row === "object") return [row.time || "", row.program || row.content || "", row.venue || ""];
+  return ["", String(row || ""), ""];
+}
+function timelineRowsForDate(dateValue) {
+  const rows = Array.isArray(TIMELINE[dateValue]) ? TIMELINE[dateValue] : [];
+  if (rows.length) return rows.map(normalizeTimelineRow).filter((r) => r.some(Boolean));
+  const fallback = Array.isArray(DEFAULT_TIMELINE[dateValue]) ? DEFAULT_TIMELINE[dateValue] : [];
+  return fallback.map(normalizeTimelineRow).filter((r) => r.some(Boolean));
+}
 function renderTimeline(dateValue = "2026-08-02") {
   const panel = $("timelinePanel");
-  const rows = TIMELINE[dateValue] || [];
-  panel.innerHTML = `<table><thead><tr><th>Time</th><th>Program</th><th>Venue</th></tr></thead><tbody>${rows.map((row) => `<tr><td>${row[0]}</td><td>${row[1]}</td><td>${row[2]}</td></tr>`).join("")}</tbody></table>`;
+  let rows = timelineRowsForDate(dateValue);
+  if (!rows.length) {
+    rows = Object.keys(DEFAULT_TIMELINE).flatMap((date) => timelineRowsForDate(date).map((row) => [selectedDateShort(date), ...row]));
+    panel.innerHTML = `<table><thead><tr><th>Date</th><th>Time</th><th>Program</th><th>Venue</th></tr></thead><tbody>${rows.map((row) => `<tr><td>${row[0]}</td><td>${row[1]}</td><td>${row[2]}</td><td>${row[3]}</td></tr>`).join("")}</tbody></table>`;
+  } else {
+    panel.innerHTML = `<table><thead><tr><th>Time</th><th>Program</th><th>Venue</th></tr></thead><tbody>${rows.map((row) => `<tr><td>${row[0]}</td><td>${row[1]}</td><td>${row[2]}</td></tr>`).join("")}</tbody></table>`;
+  }
   document.querySelectorAll(".timeline-tab").forEach((button) => button.classList.toggle("is-active", button.dataset.date === dateValue));
 }
 function renderTimelineTabs() {
   const tabs = $("timelineTabs");
   tabs.innerHTML = "";
-  EVENT_DATES.forEach((d) => {
+  const dates = EVENT_DATES.length ? EVENT_DATES : Object.keys(DEFAULT_TIMELINE).map((value) => ({ value, short: selectedDateShort(value) }));
+  dates.forEach((d) => {
     const button = document.createElement("button");
     button.type = "button";
     button.className = "timeline-tab";
     button.dataset.date = d.value;
-    button.textContent = d.short;
+    button.textContent = d.short || d.label || d.value;
     button.addEventListener("click", () => renderTimeline(d.value));
     tabs.appendChild(button);
   });
-  renderTimeline((EVENT_DATES[0] || { value: "2026-08-02" }).value);
+  renderTimeline((dates[0] || { value: "2026-08-02" }).value);
 }
 function makeRatingQuestion(question, name, required = true, indexLabel = "") {
   const wrapper = document.createElement("div");
@@ -701,7 +720,10 @@ function applyRemoteConfig(config) {
   if (Array.isArray(config.schools) && config.schools.length) SCHOOLS = config.schools;
   if (Array.isArray(config.countries) && config.countries.length) COUNTRIES = config.countries;
   if (Array.isArray(config.eventDates) && config.eventDates.length) EVENT_DATES = config.eventDates.map(normalizeEventDateItem);
-  if (config.timeline && typeof config.timeline === "object") TIMELINE = config.timeline;
+  if (config.timeline && typeof config.timeline === "object") {
+    const hasRows = Object.keys(config.timeline).some((key) => Array.isArray(config.timeline[key]) && config.timeline[key].length);
+    if (hasRows) TIMELINE = config.timeline;
+  }
   if (Array.isArray(config.programQuestions) && config.programQuestions.length) PROGRAM_QUESTIONS = config.programQuestions;
   if (Array.isArray(config.itemExtraOptions) && config.itemExtraOptions.length) ITEM_EXTRA_OPTIONS = config.itemExtraOptions;
   if (Array.isArray(config.periodOptions) && config.periodOptions.length) PERIOD_OPTIONS = config.periodOptions;
