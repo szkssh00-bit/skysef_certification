@@ -1,9 +1,9 @@
-# PowerShell update command
+# PowerShell update command for skysef_certification_complete_v17.zip
 
 ```powershell
-$ZipPath = "C:\Users\SSH2026\Downloads\skysef_certification_complete_v8.zip"
+$ZipPath = "C:\Users\SSH2026\Downloads\skysef_certification_complete_v17.zip"
 $RepoPath = "C:\Users\SSH2026\Downloads\skysef_certification"
-$TempPath = "C:\Users\SSH2026\Downloads\skysef_certification_complete_v8_temp"
+$TempPath = "C:\Users\SSH2026\Downloads\skysef_certification_complete_v17_temp"
 $RepoUrl = "https://github.com/szkssh00-bit/skysef_certification.git"
 
 if (!(Test-Path $ZipPath)) {
@@ -23,12 +23,6 @@ if (!(Test-Path $RepoPath)) {
 }
 
 $SourceRoot = Get-ChildItem -Path $TempPath -Directory | Select-Object -First 1
-
-if ($null -eq $SourceRoot) {
-  Write-Host "ZIP内に実体フォルダが見つかりません。" -ForegroundColor Red
-  exit
-}
-
 Set-Location $RepoPath
 
 Remove-Item ".\public" -Recurse -Force -ErrorAction SilentlyContinue
@@ -49,10 +43,6 @@ New-Item -ItemType Directory -Force -Path ".github\workflows" | Out-Null
 Copy-Item -Path "$($SourceRoot.FullName)\.github\workflows\pages.yml" -Destination ".\.github\workflows\pages.yml" -Force
 
 git add .
-git commit -m "Update SKYSEF certification system v8"
+git commit -m "Fix admin navigation and certificate footer layout v17"
 git push
-
-Write-Host "完了しました。GitHub Actionsを確認してください。" -ForegroundColor Green
-Write-Host "https://github.com/szkssh00-bit/skysef_certification/actions" -ForegroundColor Green
-Write-Host "公開URL: https://szkssh00-bit.github.io/skysef_certification/" -ForegroundColor Green
 ```

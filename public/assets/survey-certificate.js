@@ -1,5 +1,5 @@
 /* SKYSEF questionnaire -> background certificate PDF -> final record. */
-const SURVEY_ENDPOINT = "https://script.google.com/macros/s/AKfycbwa18txgtOGAMqqJXcu9_95_VKfiemYNgtNJnPIr4XYcvyvRlRgmclCxerp0ZMmNX8z/exec";
+const SURVEY_ENDPOINT = "https://script.google.com/macros/s/AKfycbwNWhUWVNmUulPUKhujkhkGZsABztCY1dWLMteyWC_eNUd0Cc_Rx3rrnAS3Q5QoMGkG/exec";
 const ADMIN_PASSWORD_CLIENT = "set";
 let remoteConfigLoaded = false;
 
@@ -777,8 +777,15 @@ async function handleAdminReload() {
   }
 }
 
+function showAdminView() {
+  showView("adminView");
+  history.replaceState(null, "", "#admin");
+  fillAdminEditor();
+}
+function routeByHash() {
+  if (location.hash === "#admin") showAdminView();
+}
 async function init() {
-  await loadRemoteConfig();
   renderSelectOptions();
   renderTimelineTabs();
   renderQuestions();
@@ -795,10 +802,16 @@ async function init() {
   $("backToQuestionnaireButton").addEventListener("click", showQuestionnaireView);
   $("participantForm").addEventListener("submit", handleNext);
   $("surveyForm").addEventListener("submit", handleSubmit);
-  $("adminNavLink").addEventListener("click", (event) => { event.preventDefault(); showView("adminView"); history.replaceState(null, "", "#admin"); fillAdminEditor(); });
+  $("adminNavLink").addEventListener("click", (event) => { event.preventDefault(); showAdminView(); });
   $("adminLoginForm").addEventListener("submit", handleAdminLogin);
   $("adminEditorForm").addEventListener("submit", handleAdminSave);
   $("adminReloadButton").addEventListener("click", handleAdminReload);
-  if (location.hash === "#admin") { showView("adminView"); fillAdminEditor(); } else { showView("participantView"); }
+  window.addEventListener("hashchange", routeByHash);
+  if (location.hash === "#admin") showAdminView(); else showView("participantView");
+  loadRemoteConfig().then(() => {
+    rebuildInteractiveContent();
+    if (location.hash === "#admin") fillAdminEditor();
+  }).catch((error) => console.warn("Remote config load failed.", error));
 }
+window.SKYSEFShowAdmin = showAdminView;
 document.addEventListener("DOMContentLoaded", init);

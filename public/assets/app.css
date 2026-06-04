@@ -311,3 +311,14 @@ input:focus, select:focus, textarea:focus {
 .admin-edit-card code { background: #eef5fb; border: 1px solid #d7e3ef; border-radius: 8px; padding: 1px 5px; }
 .static-panel { position: static; flex-wrap: wrap; }
 .admin-login .submit-panel, .admin-editor .submit-panel { margin-top: 12px; }
+
+.site-nav .admin-nav-button {
+  min-height: 36px;
+  padding: 7px 14px;
+  border-radius: 999px;
+  background: #10243f;
+  color: #ffffff !important;
+  display: inline-flex;
+  align-items: center;
+}
+.site-nav .admin-nav-button:hover { background: #135f9f; }
