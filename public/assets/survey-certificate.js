@@ -1,5 +1,5 @@
 /* SKYSEF questionnaire -> background certificate PDF -> final record. */
-const SURVEY_ENDPOINT = "https://script.google.com/macros/s/AKfycbyYzMkcZiNBZ8sP_OugFjFRmqz-mv_ggb1h_a-MbGkX7PoLU6mnyUxQj-dopkJHyxhL/exec";
+const SURVEY_ENDPOINT = "https://script.google.com/macros/s/AKfycbxvaUueF2ptwMis7PQ2XyxuValbEO7PalE4fJFiIq3QPZYKTcXnfS8D7PFxrXdwb1Uf/exec";
 const ADMIN_PASSWORD_CLIENT = "set";
 let remoteConfigLoaded = false;
 
@@ -645,10 +645,32 @@ function csvLinesToSchools(text) {
 function schoolsToCsvLines(list) {
   return (list || []).map((item) => `${item.school}, ${item.country || "Other"}`).join("\n");
 }
+function fallbackDateParts(value) {
+  const m = String(value || "").match(/^(\d{4})-(\d{2})-(\d{2})$/);
+  if (!m) return { label: String(value || ""), short: String(value || "") };
+  const monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+  const monthShort = ["Jan.", "Feb.", "Mar.", "Apr.", "May", "Jun.", "Jul.", "Aug.", "Sep.", "Oct.", "Nov.", "Dec."];
+  const y = m[1];
+  const mo = Number(m[2]);
+  const d = String(Number(m[3]));
+  return { label: `${monthNames[mo - 1]} ${d}, ${y}`, short: `${monthShort[mo - 1]} ${d}` };
+}
+function normalizeEventDateItem(item) {
+  const value = String(item && item.value ? item.value : "").trim();
+  const fallback = fallbackDateParts(value);
+  let label = String(item && item.label ? item.label : fallback.label).trim();
+  let short = String(item && item.short ? item.short : fallback.short).trim();
+  if (/^\d{4}$/.test(short) || !short || short === label) short = fallback.short;
+  if (!/,\s*\d{4}$/.test(label) && /^\d{4}-\d{2}-\d{2}$/.test(value)) label = fallback.label;
+  return { ...item, value, label, short };
+}
 function csvLinesToEventDates(text) {
   return String(text || "").split(/\r?\n/).map((line) => line.trim()).filter(Boolean).map((line) => {
     const parts = line.split(",").map((p) => p.trim());
-    return { value: parts[0], label: parts[1] || parts[0], short: parts[2] || parts[1] || parts[0] };
+    const value = parts.shift() || "";
+    const short = parts.length > 1 ? parts.pop() : "";
+    const label = parts.join(", ") || "";
+    return normalizeEventDateItem({ value, label, short });
   }).filter((item) => item.value);
 }
 function eventDatesToCsvLines(list) {
@@ -678,7 +700,7 @@ function applyRemoteConfig(config) {
   if (!config || typeof config !== "object") return;
   if (Array.isArray(config.schools) && config.schools.length) SCHOOLS = config.schools;
   if (Array.isArray(config.countries) && config.countries.length) COUNTRIES = config.countries;
-  if (Array.isArray(config.eventDates) && config.eventDates.length) EVENT_DATES = config.eventDates;
+  if (Array.isArray(config.eventDates) && config.eventDates.length) EVENT_DATES = config.eventDates.map(normalizeEventDateItem);
   if (config.timeline && typeof config.timeline === "object") TIMELINE = config.timeline;
   if (Array.isArray(config.programQuestions) && config.programQuestions.length) PROGRAM_QUESTIONS = config.programQuestions;
   if (Array.isArray(config.itemExtraOptions) && config.itemExtraOptions.length) ITEM_EXTRA_OPTIONS = config.itemExtraOptions;
@@ -750,19 +772,26 @@ async function requestAdminAccess() {
     history.replaceState(null, "", "#admin");
     return true;
   }
+
   const password = window.prompt("Admin password");
+
   if (password === null) {
     history.replaceState(null, "", location.pathname + location.search);
+    showView("participantView");
     return false;
   }
+
   if (password !== ADMIN_PASSWORD_CLIENT) {
     window.alert("Incorrect password.");
     history.replaceState(null, "", location.pathname + location.search);
+    showView("participantView");
     return false;
   }
+
+  // Do not reveal the admin screen before the password has been checked.
+  await openAdminEditor(password);
   showView("adminView");
   history.replaceState(null, "", "#admin");
-  await openAdminEditor(password);
   return true;
 }
 async function handleAdminSave(event) {

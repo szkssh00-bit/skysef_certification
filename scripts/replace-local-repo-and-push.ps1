@@ -1,6 +1,6 @@
-$ZipPath = "C:\Users\SSH2026\Downloads\skysef_certification_complete_v19.zip"
+$ZipPath = "C:\Users\SSH2026\Downloads\skysef_certification_complete_v20.zip"
 $RepoPath = "C:\Users\SSH2026\Downloads\skysef_certification"
-$TempPath = "C:\Users\SSH2026\Downloads\skysef_certification_complete_v19_temp"
+$TempPath = "C:\Users\SSH2026\Downloads\skysef_certification_complete_v20_temp"
 $RepoUrl = "https://github.com/szkssh00-bit/skysef_certification.git"
 
 if (!(Test-Path $ZipPath)) {

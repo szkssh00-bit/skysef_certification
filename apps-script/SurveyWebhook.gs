@@ -594,7 +594,7 @@ function certificateHtml_(name, school, period) {
   .accent-bottom { position:absolute; left:-54mm; bottom:-58mm; width:132mm; height:98mm; border-radius:0 70mm 0 0; background:linear-gradient(135deg,rgba(16,36,63,.96),rgba(19,95,159,.76)); transform:rotate(-3deg); }
   .content { position:relative; z-index:1; height:100%; padding:26mm 25mm 22mm; text-align:center; box-sizing:border-box; display:flex; flex-direction:column; align-items:center; }
   .logo-row { width:100%; text-align:left; min-height:24mm; background:transparent; }
-  .skysef { width:64mm; max-height:23mm; object-fit:contain; background:#fff; padding:1.4mm 2.2mm 1.2mm 0; border-radius:1mm; }
+  .skysef { width:58mm; max-height:20mm; object-fit:contain; background:transparent; padding:0; border-radius:0; }
   .kicker { margin:16mm 0 0; color:#135f9f; text-transform:uppercase; font-size:10.4pt; letter-spacing:.13em; font-weight:800; line-height:1.35; }
   h1 { margin:5mm 0 0; color:#10243f; line-height:1; letter-spacing:-.02em; }
   h1 .big { display:block; font-size:42pt; font-weight:900; letter-spacing:-.025em; }
@@ -605,11 +605,11 @@ function certificateHtml_(name, school, period) {
   .school { min-height:8mm; display:flex; align-items:center; justify-content:center; margin-top:1.5mm; font-size:14pt; line-height:1.25; color:#33506d; font-weight:800; word-wrap:break-word; }
   .desc { margin:10.5mm auto 0; width:150mm; font-size:15.2pt; line-height:1.58; color:#18314f; font-weight:500; }
   .footer { width:150mm; margin-top:auto; padding-bottom:2mm; display:flex; justify-content:flex-end; align-items:flex-end; }
-  .footer-right { width:120mm; margin-left:auto; text-align:right; display:flex; flex-direction:row; justify-content:flex-end; align-items:flex-end; gap:7mm; }
-  .org { width:58mm; display:flex; justify-content:flex-end; align-items:center; gap:3mm; }
-  .school-logo { width:18mm; height:auto; object-fit:contain; flex:0 0 auto; }
-  .org-name { max-width:36mm; font-size:13.2pt; line-height:1.06; letter-spacing:.018em; text-transform:uppercase; font-weight:900; color:#18314f; text-align:right; }
-  .sig { position:relative; width:44mm; min-height:23mm; display:flex; flex-direction:column; align-items:flex-end; justify-content:flex-end; padding:0 18mm 4.2mm 0; border:0 !important; }
+  .footer-right { width:120mm; margin-left:auto; text-align:right; display:flex; flex-direction:row; justify-content:flex-end; align-items:flex-end; gap:5mm; }
+  .org { width:62mm; display:flex; justify-content:flex-end; align-items:center; gap:3mm; }
+  .school-logo { width:17mm; height:auto; object-fit:contain; flex:0 0 auto; }
+  .org-name { max-width:41mm; font-size:13.6pt; line-height:1.06; letter-spacing:.018em; text-transform:uppercase; font-weight:900; color:#18314f; text-align:right; }
+  .sig { position:relative; width:42mm; min-height:23mm; display:flex; flex-direction:column; align-items:flex-end; justify-content:flex-end; padding:0 18mm 4.2mm 0; border:0 !important; transform:translateY(-10px); }
   .sig:before, .sig:after { content:none !important; display:none !important; }
   .principal-name { position:relative; z-index:2; font-size:13.2pt; line-height:1.05; font-weight:900; color:#10243f; text-align:right; white-space:nowrap; }
   .principal-title { position:relative; z-index:2; margin-top:.8mm; font-size:11pt; line-height:1.05; font-weight:800; color:#304b6e; text-align:right; }

@@ -98,12 +98,12 @@
 }
 
 .logo-skysef {
-  width: 64mm;
-  max-height: 23mm;
+  width: 58mm;
+  max-height: 20mm;
   object-fit: contain;
-  background: #ffffff;
-  padding: 1.4mm 2.2mm 1.2mm 0;
-  border-radius: 1mm;
+  background: transparent;
+  padding: 0;
+  border-radius: 0;
 }
 
 .cert-kicker {
@@ -208,11 +208,11 @@
   flex-direction: row;
   justify-content: flex-end;
   align-items: flex-end;
-  gap: 7mm;
+  gap: 5mm;
 }
 
 .organizer-block {
-  width: 58mm;
+  width: 62mm;
   display: flex;
   justify-content: flex-end;
   align-items: center;
@@ -220,15 +220,15 @@
 }
 
 .logo-school {
-  width: 18mm;
+  width: 17mm;
   height: auto;
   object-fit: contain;
   flex: 0 0 auto;
 }
 
 .organizer-name {
-  max-width: 36mm;
-  font-size: 13.2pt;
+  max-width: 41mm;
+  font-size: 13.6pt;
   line-height: 1.06;
   letter-spacing: .018em;
   text-transform: uppercase;
@@ -239,8 +239,9 @@
 
 .signature-block {
   position: relative;
-  width: 44mm;
+  width: 42mm;
   min-height: 23mm;
+  transform: translateY(-10px);
   display: flex;
   flex-direction: column;
   align-items: flex-end;

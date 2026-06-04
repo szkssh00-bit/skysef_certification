@@ -322,3 +322,8 @@ input:focus, select:focus, textarea:focus {
   align-items: center;
 }
 .site-nav .admin-nav-button:hover { background: #135f9f; }
+.site-nav button.admin-nav-button {
+  border: 0;
+  font: inherit;
+  cursor: pointer;
+}
